@@ -41,6 +41,9 @@ export default function LessonPage({ courses, progress, onComplete }: LessonPage
     );
   }
 
+  const lockedPrerequisites = lesson.blockedBy?.filter((id) => !progress[id]) ?? [];
+  const isLocked = lockedPrerequisites.length > 0;
+
   return (
     <section className="page-content">
       <div className="page-header">
@@ -53,11 +56,25 @@ export default function LessonPage({ courses, progress, onComplete }: LessonPage
           <strong>Curso:</strong> {course.title}
         </p>
         <p>
-          <strong>Estado:</strong> {progress[lesson.id] ? "Completada" : "Pendiente"}
+          <strong>Estado:</strong> {progress[lesson.id] ? "Completada" : isLocked ? "Bloqueada" : "Pendiente"}
         </p>
       </div>
 
-      <LessonPlayer lesson={lesson} onComplete={() => onComplete(lesson.id)} />
+      {isLocked ? (
+        <div className="status-banner status-banner-blocked">
+          <strong>Esta lección está bloqueada.</strong> Completa primero las siguientes lecciones:
+          <ul>
+            {lockedPrerequisites.map((prerequisiteId) => {
+              const prerequisite = course.modules
+                .flatMap((module) => module.lessons)
+                .find((item) => item.id === prerequisiteId);
+              return <li key={prerequisiteId}>{prerequisite?.title ?? prerequisiteId}</li>;
+            })}
+          </ul>
+        </div>
+      ) : null}
+
+      <LessonPlayer lesson={lesson} onComplete={() => onComplete(lesson.id)} isLocked={isLocked} />
 
       <div className="lesson-navigation">
         <button className="button" type="button" onClick={() => navigate(-1)}>

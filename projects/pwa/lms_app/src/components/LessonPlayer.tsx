@@ -4,12 +4,16 @@ import type { Lesson, Resource } from "../types";
 interface LessonPlayerProps {
   lesson: Lesson;
   onComplete: () => void;
+  isLocked?: boolean;
 }
 
 const formatResourceLabel = (resource: Resource) => `${resource.title} (${resource.type})`;
 
-export default function LessonPlayer({ lesson, onComplete }: LessonPlayerProps) {
+export default function LessonPlayer({ lesson, onComplete, isLocked = false }: LessonPlayerProps) {
   const [selectedResource, setSelectedResource] = useState<Resource>(lesson.resources[0]);
+  const [resourceFeedback, setResourceFeedback] = useState(
+    "Selecciona un recurso para recibir retroalimentación de consumo y estado."
+  );
 
   const viewer = useMemo(() => {
     switch (selectedResource.type) {
@@ -44,6 +48,14 @@ export default function LessonPlayer({ lesson, onComplete }: LessonPlayerProps) 
     }
   }, [selectedResource]);
 
+  const handleSelectResource = (resource: Resource) => {
+    setSelectedResource(resource);
+    setResourceFeedback(
+      `Recurso seleccionado: ${resource.title}. Tipo de consumo: ${resource.type}.` +
+        " Puedes cambiar entre recursos para comparar consumo visual."
+    );
+  };
+
   return (
     <section className="lesson-player" aria-labelledby="player-heading">
       <div className="player-header">
@@ -57,20 +69,40 @@ export default function LessonPlayer({ lesson, onComplete }: LessonPlayerProps) 
             key={resource.id}
             type="button"
             className={resource.id === selectedResource.id ? "resource-button active" : "resource-button"}
-            onClick={() => setSelectedResource(resource)}
+            onClick={() => handleSelectResource(resource)}
+            disabled={isLocked}
+            aria-pressed={resource.id === selectedResource.id}
           >
             {formatResourceLabel(resource)}
           </button>
         ))}
       </div>
 
-      <div className="resource-details">
-        <p>{selectedResource.description}</p>
-        {viewer}
+      <div className="resource-feedback-panel">
+        <p>{resourceFeedback}</p>
+        <p className="resource-meta">
+          Recurso actual: <strong>{selectedResource.title}</strong> — {selectedResource.type}
+        </p>
       </div>
 
-      <button className="button button-primary" type="button" onClick={onComplete}>
-        Marcar lección como completada
+      <div className="resource-details">
+        <p>{selectedResource.description}</p>
+        {isLocked ? (
+          <p className="resource-locked">
+            Esta lección está bloqueada. Completa primero las lecciones requeridas para desbloquear el contenido.
+          </p>
+        ) : (
+          viewer
+        )}
+      </div>
+
+      <button
+        className="button button-primary"
+        type="button"
+        onClick={onComplete}
+        disabled={isLocked}
+      >
+        {isLocked ? "Lección bloqueada" : "Marcar lección como completada"}
       </button>
     </section>
   );

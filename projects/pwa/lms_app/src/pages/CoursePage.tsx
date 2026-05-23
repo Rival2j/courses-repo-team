@@ -6,6 +6,38 @@ interface CoursePageProps {
   progress: ProgressState["completedLessons"];
 }
 
+function countModuleProgress(module: Course["modules"][number], progress: CoursePageProps["progress"]) {
+  const lessonIds = module.lessons.map((lesson) => lesson.id);
+  const completedCount = lessonIds.filter((lessonId) => progress[lessonId]).length;
+
+  return {
+    completed: completedCount,
+    total: lessonIds.length,
+    percentage: lessonIds.length ? Math.round((completedCount / lessonIds.length) * 100) : 0,
+  };
+}
+
+function getLockedLessons(module: Course["modules"][number], progress: CoursePageProps["progress"]) {
+  return module.lessons.reduce<Record<string, boolean>>((locked, lesson) => {
+    const requires = lesson.blockedBy ?? [];
+    locked[lesson.id] = requires.some((requiredId) => !progress[requiredId]);
+    return locked;
+  }, {});
+}
+
+function getPrerequisiteNames(course: Course, lesson: Course["modules"][number]["lessons"][number]) {
+  if (!lesson.blockedBy?.length) {
+    return [];
+  }
+
+  return lesson.blockedBy.map((prerequisiteId) => {
+    const match = course.modules
+      .flatMap((module) => module.lessons)
+      .find((item) => item.id === prerequisiteId);
+    return match ? match.title : prerequisiteId;
+  });
+}
+
 export default function CoursePage({ courses, progress }: CoursePageProps) {
   const { courseId } = useParams();
   const course = courses.find((item) => item.id === courseId);
@@ -21,6 +53,12 @@ export default function CoursePage({ courses, progress }: CoursePageProps) {
       </section>
     );
   }
+
+  const totalLessons = course.modules.reduce((sum, module) => sum + module.lessons.length, 0);
+  const totalCompleted = course.modules
+    .flatMap((module) => module.lessons)
+    .filter((lesson) => progress[lesson.id]).length;
+  const courseProgress = totalLessons ? Math.round((totalCompleted / totalLessons) * 100) : 0;
 
   return (
     <section className="page-content">
@@ -40,35 +78,68 @@ export default function CoursePage({ courses, progress }: CoursePageProps) {
           <p>
             <strong>Módulos:</strong> {course.modules.length}
           </p>
+          <p className="course-progress">
+            Progreso del curso: {totalCompleted}/{totalLessons} lecciones completadas
+          </p>
+          <div className="progress-meter" aria-hidden="true">
+            <div className="progress-track">
+              <div className="progress-fill" style={{ width: `${courseProgress}%` }} />
+            </div>
+            <small>{courseProgress}% completado</small>
+          </div>
         </div>
 
         <div className="course-modules" aria-label="Módulos y lecciones del curso">
           <h3>Contenido del curso</h3>
           <ol className="module-list">
-            {course.modules.map((module) => (
-              <li key={module.id} className="module-item">
-                <div className="module-header">
-                  <span className="module-title">{module.title}</span>
-                  <span className="module-description">{module.description}</span>
-                </div>
-                <ul className="lesson-list">
-                  {module.lessons.map((lesson) => (
-                    <li key={lesson.id}>
-                      <Link
-                        className="lesson-link"
-                        to={`/cursos/${course.id}/leccion/${lesson.id}`}
-                        aria-current={progress[lesson.id] ? "true" : undefined}
-                      >
-                        {lesson.title}
-                      </Link>
-                      <span className="lesson-status">
-                        {progress[lesson.id] ? "Completada" : "Pendiente"}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            ))}
+            {course.modules.map((module) => {
+              const moduleProgress = countModuleProgress(module, progress);
+              const lockedLessons = getLockedLessons(module, progress);
+
+              return (
+                <li key={module.id} className="module-item">
+                  <div className="module-header">
+                    <span className="module-title">{module.title}</span>
+                    <span className="module-description">{module.description}</span>
+                  </div>
+                  <div className="module-progress-summary">
+                    Progreso del módulo: {moduleProgress.completed}/{moduleProgress.total} lecciones ({moduleProgress.percentage}%)
+                  </div>
+                  <ul className="lesson-list">
+                    {module.lessons.map((lesson) => {
+                      const isLocked = lockedLessons[lesson.id];
+                      const prerequisiteNames = getPrerequisiteNames(course, lesson);
+
+                      return (
+                        <li key={lesson.id}>
+                          {isLocked ? (
+                            <span className="lesson-link lesson-link-locked" aria-disabled="true">
+                              {lesson.title}
+                            </span>
+                          ) : (
+                            <Link
+                              className="lesson-link"
+                              to={`/cursos/${course.id}/leccion/${lesson.id}`}
+                              aria-current={progress[lesson.id] ? "true" : undefined}
+                            >
+                              {lesson.title}
+                            </Link>
+                          )}
+                          <span className={`lesson-status ${isLocked ? "lesson-status--blocked" : ""}`}>
+                            {isLocked ? "Bloqueada" : progress[lesson.id] ? "Completada" : "Pendiente"}
+                          </span>
+                          {isLocked && prerequisiteNames.length > 0 ? (
+                            <p className="lesson-locked-reason">
+                              Completa {prerequisiteNames.join(", ")} antes de continuar.
+                            </p>
+                          ) : null}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </li>
+              );
+            })}
           </ol>
         </div>
       </div>

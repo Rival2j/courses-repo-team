@@ -13,6 +13,7 @@ export interface Lesson {
   title: string;
   description: string;
   resources: Resource[];
+  blockedBy?: string[];
 }
 
 export interface Module {

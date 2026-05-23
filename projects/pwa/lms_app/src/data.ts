@@ -53,6 +53,7 @@ export const courses: Course[] = [
             id: "leccion-3",
             title: "Seguimiento de progreso",
             description: "Visualiza cómo se refleja tu avance y qué significa cada estado.",
+            blockedBy: ["leccion-2"],
             resources: [
               {
                 id: "res-3",
@@ -84,6 +85,7 @@ export const courses: Course[] = [
             id: "leccion-4",
             title: "Evaluación segura",
             description: "Comprende el flujo de evaluación donde la UI protege la integridad del proceso.",
+            blockedBy: ["leccion-3"],
             resources: [
               {
                 id: "res-4",
