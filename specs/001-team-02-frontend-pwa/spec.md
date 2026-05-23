@@ -5,6 +5,12 @@
 **Status**: Draft  
 **Input**: User description: "Ejecuta la etapa Speckit specify para TEAM-02 en este workspace y crea la feature en la raiz specs/ respetando nomenclatura canonica."
 
+## Clarifications
+
+### Session 2026-05-23
+- Q: ¿Cuál debe ser el alcance offline básico de la PWA? → A: El soporte offline aplica únicamente al contenido y al estado de progreso previamente cargados; las acciones de escritura nuevas se bloquean hasta la reconexión.
+- Q: ¿Qué estándar de accesibilidad deben cumplir las vistas criticas? → A: WCAG 2.1 AA para vistas y flujos críticos.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Experiencia de aprendizaje en catalogo, detalle y lecciones (Priority: P1)
@@ -102,6 +108,7 @@ Como administrador o moderador, quiero gestionar configuraciones operativas y mo
 
 - Que sucede cuando el usuario intenta consumir contenido bloqueado por prerequisitos mientras esta en modo offline.
 - Como se comporta la interfaz cuando existe desalineacion temporal entre estado local de progreso y estado canonico remoto tras reconexion.
+- Cuando el usuario está offline, solo se permite navegar contenido previamente sincronizado y las acciones de inscripción o evaluaciones activas se bloquean hasta reconexión.
 - Que ocurre si un intento de evaluacion inicia con conectividad inestable y la sesion cambia entre online/offline.
 - Como responde el frontend si la restriccion de IA se activa o desactiva durante una evaluacion activa.
 - Que ocurre cuando un perfil sin permisos intenta acceder a vistas administrativas o de moderacion.
@@ -116,10 +123,10 @@ Como administrador o moderador, quiero gestionar configuraciones operativas y mo
 - **FR-004**: El runner de evaluaciones DEBE ofrecer flujo controlado con restricciones de navegacion y feedback posterior sin revelar respuestas correctas ni reglas internas de calificacion (alineado a RF-002 y T311-T312).
 - **FR-005**: Durante evaluaciones activas, la interfaz DEBE aplicar la restriccion de IA y mostrar estados claros de bloqueo/permitido segun contexto (alineado a RF-004 y T511).
 - **FR-006**: El frontend DEBE incluir vistas de perfil, gamificacion, certificados verificables y notificaciones para visibilidad de progreso del alumno (alineado a RF-003/RF-005 y T411-T412/T512).
-- **FR-007**: La aplicacion DEBE operar como experiencia PWA instalable con continuidad offline basica y recuperacion controlada del estado visual permitido (alineado a RF-005 y T611-T612).
+- **FR-007**: La aplicacion DEBE operar como experiencia PWA instalable con continuidad offline basica y recuperacion controlada del estado visual permitido; el contenido mostrado offline se limita a lo previamente cargado y las acciones de escritura quedan bloqueadas hasta reconexion (alineado a RF-005 y T611-T612).
 - **FR-008**: La interfaz DEBE incorporar vistas administrativas y de moderacion para roles autorizados, respetando su alcance de gestion (alineado a RF-005 y T711).
 - **FR-009**: El frontend NO DEBE conocer la fuente fisica de datos ni contener logica sensible, y DEBE consumir contratos canonicos desacoplados (alineado a REQ-T1 y T014).
-- **FR-010**: El feature DEBE cumplir objetivos de accesibilidad y experiencia en vistas criticas, incluyendo responsive y usabilidad verificable (alineado a RNF-004 y T811).
+- **FR-010**: El feature DEBE cumplir objetivos de accesibilidad y experiencia en vistas criticas, incluyendo responsive y usabilidad verificable; las vistas y flujos críticos DEBEN alinearse con WCAG 2.1 AA (alineado a RNF-004 y T811).
 - **FR-011**: El feature DEBE mantener evidencia de trazabilidad funcional por fase F0-F8 para su validacion operativa multi-team (alineado a REQ-T2/REQ-T3 y perfil de integracion).
 - **FR-012**: El feature DEBE respetar restricciones de seguridad del cliente: sin secretos, sin decision academica en cliente y sin bypass desde UI de controles de restriccion (alineado a REQ-T4 y restricciones canonicas).
 
@@ -142,7 +149,7 @@ Como administrador o moderador, quiero gestionar configuraciones operativas y mo
 - **SC-001**: Al menos 90% de usuarios de prueba completa el flujo catalogo -> detalle -> consumo de leccion sin apoyo externo en una sola sesion.
 - **SC-002**: El 100% de intentos de evaluacion de prueba aplica restriccion de IA durante estado activo y muestra feedback posterior sin revelar respuestas correctas.
 - **SC-003**: El 100% de escenarios de prerequisitos evaluados bloquea correctamente accesos no permitidos y muestra mensaje explicativo comprensible para el usuario.
-- **SC-004**: Al menos 95% de verificaciones de accesibilidad en vistas criticas cumple el nivel objetivo definido para la iniciativa.
+- **SC-004**: Al menos 95% de verificaciones de accesibilidad en vistas criticas cumple WCAG 2.1 AA para las vistas y flujos definidos en el alcance.
 - **SC-005**: El 100% de pruebas de instalacion PWA definidas para el alcance basico finaliza con exito en los entornos de validacion acordados.
 - **SC-006**: Al menos 90% de casos de reconexion de prueba restaura el estado visual permitido sin perdida de continuidad percibida por el usuario.
 
