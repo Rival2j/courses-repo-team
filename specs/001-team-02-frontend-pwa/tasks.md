@@ -13,10 +13,10 @@ Este archivo deriva literalmente del backlog canonico global y contiene solo tar
 ## Tareas
 
 ### F0
-- [ ] T011 [P] [F0] [TEAM-02] Configurar workspace frontend con Vite, React, TypeScript, pnpm, Tailwind, shadcn/ui y Radix. TR: C-13, S-RF-005, P-7.
-- [ ] T012 [P] [F0] [TEAM-02] Integrar React Router, TanStack Query, Zustand, React Hook Form y Zod siguiendo boundaries por feature. TR: C-4, C-13, P-7.
-- [ ] T013 [P] [F0] [TEAM-02] Implementar App Shell PWA con estados globales `loading`, `error`, `empty` y `offline`. TR: S-RF-005, S-RNF-004, P-9.
-- [ ] T014 [P] [F0] [TEAM-02] Definir contratos de consumo frontend y mocks temporales desacoplados de la fuente fisica de datos. TR: C-3, S-RF-001, P-6.
+- [x] T011 [P] [F0] [TEAM-02] Configurar workspace frontend con Vite, React, TypeScript, pnpm, Tailwind, shadcn/ui y Radix. TR: C-13, S-RF-005, P-7.
+- [x] T012 [P] [F0] [TEAM-02] Integrar React Router, TanStack Query, Zustand, React Hook Form y Zod siguiendo boundaries por feature. TR: C-4, C-13, P-7.
+- [x] T013 [P] [F0] [TEAM-02] Implementar App Shell PWA con estados globales `loading`, `error`, `empty` y `offline`. TR: S-RF-005, S-RNF-004, P-9.
+- [x] T014 [P] [F0] [TEAM-02] Definir contratos de consumo frontend y mocks temporales desacoplados de la fuente fisica de datos. TR: C-3, S-RF-001, P-6.
 
 ### F1
 - [x] T111 [P] [F1] [TEAM-02] Implementar catalogo de cursos y pagina de detalle con experiencia tipo LMS moderna. TR: S-RF-001, P-8.

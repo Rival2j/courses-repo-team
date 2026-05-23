@@ -1,69 +1,52 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { courses } from "./data";
-import type { ProgressState } from "./types";
+import { useCourses } from "./features/course/useCourses";
+import { useCourseProgressStore } from "./features/course/courseStore";
 import CatalogPage from "./pages/CatalogPage";
 import CoursePage from "./pages/CoursePage";
 import LessonPage from "./pages/LessonPage";
-
-const initialProgress: ProgressState = {
-  completedLessons: {},
-};
+import { AppShell } from "./components/AppShell";
 
 function App() {
-  const [progress, setProgress] = useState<ProgressState>(initialProgress);
+  const { data: courses = [], isLoading, isError, error } = useCourses();
+  const completedLessons = useCourseProgressStore((state) => state.completedLessons);
+  const markLessonComplete = useCourseProgressStore((state) => state.markLessonComplete);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
-  const progressMap = useMemo(
-    () => progress.completedLessons,
-    [progress]
-  );
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
 
-  const handleCompleteLesson = (lessonId: string) => {
-    setProgress((current) => ({
-      completedLessons: {
-        ...current.completedLessons,
-        [lessonId]: true,
-      },
-    }));
-  };
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  const hasEmptyState = !isLoading && !isError && courses.length === 0;
 
   return (
-    <div className="app-shell">
-      <header className="app-header">
-        <div>
-          <h1>LMS PWA TEAM-02</h1>
-          <p className="subtitle">Catálogo, cursos y lecciones con progreso accesible.</p>
-        </div>
-      </header>
-      <main>
-        <Routes>
-          <Route
-            path="/"
-            element={<CatalogPage courses={courses} progress={progressMap} />}
-          />
-          <Route
-            path="/cursos/:courseId"
-            element={
-              <CoursePage
-                courses={courses}
-                progress={progressMap}
-              />
-            }
-          />
-          <Route
-            path="/cursos/:courseId/leccion/:lessonId"
-            element={
-              <LessonPage
-                courses={courses}
-                progress={progressMap}
-                onComplete={handleCompleteLesson}
-              />
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
-    </div>
+    <AppShell
+      isOffline={isOffline}
+      isLoading={isLoading}
+      isError={isError}
+      emptyState={hasEmptyState}
+      errorText={error instanceof Error ? error.message : undefined}
+      emptyText="No se encontró contenido para mostrar. Intenta recargar más tarde."
+    >
+      <Routes>
+        <Route path="/" element={<CatalogPage courses={courses} progress={completedLessons} />} />
+        <Route path="/cursos/:courseId" element={<CoursePage courses={courses} progress={completedLessons} />} />
+        <Route
+          path="/cursos/:courseId/leccion/:lessonId"
+          element={<LessonPage courses={courses} progress={completedLessons} onComplete={markLessonComplete} />}
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AppShell>
   );
 }
 

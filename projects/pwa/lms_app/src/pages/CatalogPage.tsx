@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { Course, ProgressState } from "../types";
+import { ProgressBar } from "../components/ProgressBar";
 
 interface CatalogPageProps {
   courses: Course[];
@@ -12,6 +13,7 @@ function countCourseProgress(course: Course, progress: CatalogPageProps["progres
   return {
     completed,
     total: allLessons.length,
+    percentage: allLessons.length ? Math.round((completed / allLessons.length) * 100) : 0,
   };
 }
 
@@ -30,14 +32,15 @@ export default function CatalogPage({ courses, progress }: CatalogPageProps) {
             <article key={course.id} className="course-card">
               <h3>{course.title}</h3>
               <p className="course-summary">{course.summary}</p>
+              <ProgressBar
+                value={stats.percentage}
+                label={`Progreso: ${stats.completed}/${stats.total} lecciones completadas`}
+              />
               <p className="course-meta">
                 <strong>Instructor:</strong> {course.instructor}
               </p>
               <p className="course-meta">
                 <strong>Dificultad:</strong> {course.difficulty}
-              </p>
-              <p className="course-progress">
-                Progreso: {stats.completed}/{stats.total} lecciones completadas
               </p>
               <Link className="button" to={`/cursos/${course.id}`}>
                 Ver curso

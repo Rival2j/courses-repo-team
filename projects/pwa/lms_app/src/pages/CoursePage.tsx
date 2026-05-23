@@ -1,5 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import type { Course, ProgressState } from "../types";
+import { ProgressBar } from "../components/ProgressBar";
+import EnrollmentForm from "../features/enrollment/EnrollmentForm";
 
 interface CoursePageProps {
   courses: Course[];
@@ -78,15 +80,8 @@ export default function CoursePage({ courses, progress }: CoursePageProps) {
           <p>
             <strong>Módulos:</strong> {course.modules.length}
           </p>
-          <p className="course-progress">
-            Progreso del curso: {totalCompleted}/{totalLessons} lecciones completadas
-          </p>
-          <div className="progress-meter" aria-hidden="true">
-            <div className="progress-track">
-              <div className="progress-fill" style={{ width: `${courseProgress}%` }} />
-            </div>
-            <small>{courseProgress}% completado</small>
-          </div>
+          <ProgressBar value={courseProgress} label={`Avance del curso: ${courseProgress}%`} />
+          <EnrollmentForm courseTitle={course.title} />
         </div>
 
         <div className="course-modules" aria-label="Módulos y lecciones del curso">
