@@ -1,0 +1,19 @@
+version: 1.0.0
+scope: projects-root
+last_updated: 2026-04-29
+
+policy:
+  always_on_radar:
+    - projects-root
+    - project-active
+  optional_layers:
+    - sdk-shared
+
+projects:
+  - id: diana-learning-app
+    alias: lms
+    enabled: true
+    knowledge_index: null
+    skills_manifest: null
+    agent_skill_matrix: null
+    sdd_engine_matrix: null
