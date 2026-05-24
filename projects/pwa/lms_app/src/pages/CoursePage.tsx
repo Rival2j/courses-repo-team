@@ -6,6 +6,9 @@ import EnrollmentForm from "../features/enrollment/EnrollmentForm";
 interface CoursePageProps {
   courses: Course[];
   progress: ProgressState["completedLessons"];
+  enrolledCourses: string[];
+  onEnrollCourse: (courseId: string) => void;
+  isOffline: boolean;
 }
 
 function countModuleProgress(module: Course["modules"][number], progress: CoursePageProps["progress"]) {
@@ -40,7 +43,24 @@ function getPrerequisiteNames(course: Course, lesson: Course["modules"][number][
   });
 }
 
-export default function CoursePage({ courses, progress }: CoursePageProps) {
+function getCourseNameById(courseId: string, courses: Course[]) {
+  const match = courses.find((course) => course.id === courseId);
+  return match ? match.title : courseId;
+}
+
+function isCourseComplete(course: Course, progress: CoursePageProps["progress"]) {
+  return course.modules
+    .flatMap((module) => module.lessons)
+    .every((lesson) => progress[lesson.id]);
+}
+
+export default function CoursePage({
+  courses,
+  progress,
+  enrolledCourses,
+  onEnrollCourse,
+  isOffline,
+}: CoursePageProps) {
   const { courseId } = useParams();
   const course = courses.find((item) => item.id === courseId);
 
@@ -61,6 +81,16 @@ export default function CoursePage({ courses, progress }: CoursePageProps) {
     .flatMap((module) => module.lessons)
     .filter((lesson) => progress[lesson.id]).length;
   const courseProgress = totalLessons ? Math.round((totalCompleted / totalLessons) * 100) : 0;
+  const isEnrolled = enrolledCourses.includes(course.id);
+  const prerequisiteCourseIds = course.prerequisiteCourseIds ?? [];
+  const unmetPrerequisiteCourses = prerequisiteCourseIds.filter(
+    (prerequisiteId) => {
+      const prerequisiteCourse = courses.find((item) => item.id === prerequisiteId);
+      return prerequisiteCourse ? !isCourseComplete(prerequisiteCourse, progress) : true;
+    }
+  );
+  const blockedReasons = unmetPrerequisiteCourses.map((id) => getCourseNameById(id, courses));
+  const canEnroll = unmetPrerequisiteCourses.length === 0;
 
   return (
     <section className="page-content">
@@ -80,8 +110,23 @@ export default function CoursePage({ courses, progress }: CoursePageProps) {
           <p>
             <strong>Módulos:</strong> {course.modules.length}
           </p>
+          <p>
+            <strong>Inscripción:</strong> {isEnrolled ? "Inscrito" : "No inscrito"}
+          </p>
+          {prerequisiteCourseIds.length > 0 ? (
+            <p>
+              <strong>Prerequisitos:</strong> {prerequisiteCourseIds.map((id) => getCourseNameById(id, courses)).join(", ")}
+            </p>
+          ) : null}
           <ProgressBar value={courseProgress} label={`Avance del curso: ${courseProgress}%`} />
-          <EnrollmentForm courseTitle={course.title} />
+          <EnrollmentForm
+            courseTitle={course.title}
+            isEnrolled={isEnrolled}
+            canEnroll={canEnroll}
+            blockedReasons={blockedReasons}
+            isOffline={isOffline}
+            onEnroll={() => onEnrollCourse(course.id)}
+          />
         </div>
 
         <div className="course-modules" aria-label="Módulos y lecciones del curso">
@@ -103,11 +148,20 @@ export default function CoursePage({ courses, progress }: CoursePageProps) {
                   <ul className="lesson-list">
                     {module.lessons.map((lesson) => {
                       const isLocked = lockedLessons[lesson.id];
+                      const lessonRequiresEnrollment = !isEnrolled;
+                      const isBlocked = isLocked || lessonRequiresEnrollment;
+                      const lessonStatus = !isEnrolled
+                        ? "Requiere inscripción"
+                        : isLocked
+                        ? "Bloqueada"
+                        : progress[lesson.id]
+                        ? "Completada"
+                        : "Pendiente";
                       const prerequisiteNames = getPrerequisiteNames(course, lesson);
 
                       return (
                         <li key={lesson.id}>
-                          {isLocked ? (
+                          {isBlocked ? (
                             <span className="lesson-link lesson-link-locked" aria-disabled="true">
                               {lesson.title}
                             </span>
@@ -120,10 +174,14 @@ export default function CoursePage({ courses, progress }: CoursePageProps) {
                               {lesson.title}
                             </Link>
                           )}
-                          <span className={`lesson-status ${isLocked ? "lesson-status--blocked" : ""}`}>
-                            {isLocked ? "Bloqueada" : progress[lesson.id] ? "Completada" : "Pendiente"}
+                          <span className={`lesson-status ${isBlocked ? "lesson-status--blocked" : ""}`}>
+                            {lessonStatus}
                           </span>
-                          {isLocked && prerequisiteNames.length > 0 ? (
+                          {lessonRequiresEnrollment ? (
+                            <p className="lesson-locked-reason">
+                              Inscríbete en el curso para acceder a esta lección.
+                            </p>
+                          ) : isLocked && prerequisiteNames.length > 0 ? (
                             <p className="lesson-locked-reason">
                               Completa {prerequisiteNames.join(", ")} antes de continuar.
                             </p>

@@ -15,9 +15,21 @@ type EnrollmentFormValues = z.infer<typeof enrollmentSchema>;
 
 interface EnrollmentFormProps {
   courseTitle: string;
+  isEnrolled: boolean;
+  canEnroll: boolean;
+  blockedReasons: string[];
+  isOffline: boolean;
+  onEnroll: () => void;
 }
 
-export default function EnrollmentForm({ courseTitle }: EnrollmentFormProps) {
+export default function EnrollmentForm({
+  courseTitle,
+  isEnrolled,
+  canEnroll,
+  blockedReasons,
+  isOffline,
+  onEnroll,
+}: EnrollmentFormProps) {
   const [successMessage, setSuccessMessage] = useState("");
   const {
     register,
@@ -34,16 +46,44 @@ export default function EnrollmentForm({ courseTitle }: EnrollmentFormProps) {
   });
 
   const onSubmit = async (values: EnrollmentFormValues) => {
+    onEnroll();
     setSuccessMessage(
-      `Inscripción solicitada para "${courseTitle}". Revisa tu correo para los siguientes pasos.`
+      `Te has inscrito en "${courseTitle}". Podrás avanzar en la ruta de aprendizaje y desbloquear lecciones.`
     );
     reset();
   };
+
+  if (isEnrolled) {
+    return (
+      <section className="enrollment-panel" aria-labelledby="enrollment-heading">
+        <h3 id="enrollment-heading">Inscripción</h3>
+        <p>Ya estás inscrito en este curso. Continúa con las lecciones disponibles y revisa tu progreso.</p>
+      </section>
+    );
+  }
 
   return (
     <section className="enrollment-panel" aria-labelledby="enrollment-heading">
       <h3 id="enrollment-heading">Inscripción rápida</h3>
       <p>Completa el formulario para validar el flujo de ingreso y los límites de interacción.</p>
+
+      {blockedReasons.length > 0 ? (
+        <div className="status-banner status-banner-blocked">
+          <strong>Inscripción bloqueada.</strong> Completa primero los siguientes cursos:
+          <ul>
+            {blockedReasons.map((reason) => (
+              <li key={reason}>{reason}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+
+      {isOffline ? (
+        <div className="status-banner status-banner-offline">
+          La inscripción está bloqueada mientras estás offline. Reconéctate para completar el registro.
+        </div>
+      ) : null}
+
       <form className="enrollment-form" onSubmit={handleSubmit(onSubmit)} noValidate>
         <label className="form-label">
           Nombre completo
@@ -63,8 +103,8 @@ export default function EnrollmentForm({ courseTitle }: EnrollmentFormProps) {
         </label>
         {errors.acceptTerms && <span className="form-error">{errors.acceptTerms.message}</span>}
 
-        <button className="button button-primary" type="submit" disabled={isSubmitting}>
-          Solicitar inscripción
+        <button className="button button-primary" type="submit" disabled={isSubmitting || !canEnroll || isOffline}>
+          {canEnroll && !isOffline ? "Solicitar inscripción" : "Inscripción no disponible"}
         </button>
 
         {successMessage ? <p className="form-success">{successMessage}</p> : null}

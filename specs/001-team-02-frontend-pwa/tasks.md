@@ -25,8 +25,8 @@ Este archivo deriva literalmente del backlog canonico global y contiene solo tar
 - [x] T114 [P] [F1] [TEAM-02] Integrar actualizacion visual de tracking, estados bloqueados y retroalimentacion de consumo de recursos. TR: S-RF-001, S-RNF-003.
 
 ### F2
-- [ ] T211 [P] [F2] [TEAM-02] Implementar experiencia de inscripcion, bloqueo por prerequisitos y mensajes explicativos para usuario final. TR: S-RF-003, S-RNF-004.
-- [ ] T212 [P] [F2] [TEAM-02] Construir vistas de rutas de aprendizaje con estados de desbloqueo, progreso y siguiente curso permitido. TR: S-RF-003.
+- [x] T211 [P] [F2] [TEAM-02] Implementar experiencia de inscripcion, bloqueo por prerequisitos y mensajes explicativos para usuario final. TR: S-RF-003, S-RNF-004.
+- [x] T212 [P] [F2] [TEAM-02] Construir vistas de rutas de aprendizaje con estados de desbloqueo, progreso y siguiente curso permitido. TR: S-RF-003.
 
 ### F3
 - [ ] T311 [P] [F3] [TEAM-02] Implementar UI del runner de evaluacion con flujo controlado, temporizador opcional y restricciones de navegacion. TR: S-RF-002, S-RNF-004.

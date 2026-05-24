@@ -29,7 +29,15 @@ export interface Course {
   summary: string;
   instructor: string;
   difficulty: string;
+  prerequisiteCourseIds?: string[];
   modules: Module[];
+}
+
+export interface LearningPath {
+  id: string;
+  title: string;
+  description: string;
+  courseIds: string[];
 }
 
 export interface ProgressState {

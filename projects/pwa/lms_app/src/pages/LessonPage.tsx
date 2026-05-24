@@ -5,10 +5,11 @@ import LessonPlayer from "../components/LessonPlayer";
 interface LessonPageProps {
   courses: Course[];
   progress: ProgressState["completedLessons"];
+  enrolledCourses: string[];
   onComplete: (lessonId: string) => void;
 }
 
-export default function LessonPage({ courses, progress, onComplete }: LessonPageProps) {
+export default function LessonPage({ courses, progress, enrolledCourses, onComplete }: LessonPageProps) {
   const { courseId, lessonId } = useParams();
   const navigate = useNavigate();
   const course = courses.find((item) => item.id === courseId);
@@ -41,8 +42,16 @@ export default function LessonPage({ courses, progress, onComplete }: LessonPage
     );
   }
 
+  const isCourseEnrolled = enrolledCourses.includes(course.id);
   const lockedPrerequisites = lesson.blockedBy?.filter((id) => !progress[id]) ?? [];
-  const isLocked = lockedPrerequisites.length > 0;
+  const isLocked = lockedPrerequisites.length > 0 || !isCourseEnrolled;
+  const statusText = progress[lesson.id]
+    ? "Completada"
+    : !isCourseEnrolled
+    ? "Requiere inscripción"
+    : lockedPrerequisites.length > 0
+    ? "Bloqueada"
+    : "Pendiente";
 
   return (
     <section className="page-content">
@@ -56,11 +65,18 @@ export default function LessonPage({ courses, progress, onComplete }: LessonPage
           <strong>Curso:</strong> {course.title}
         </p>
         <p>
-          <strong>Estado:</strong> {progress[lesson.id] ? "Completada" : isLocked ? "Bloqueada" : "Pendiente"}
+          <strong>Estado:</strong> {statusText}
         </p>
       </div>
 
-      {isLocked ? (
+      {!isCourseEnrolled ? (
+        <div className="status-banner status-banner-blocked">
+          <strong>Debes inscribirte en el curso para acceder a esta lección.</strong>
+          Visita la página del curso para completar la inscripción y desbloquear el contenido.
+        </div>
+      ) : null}
+
+      {isCourseEnrolled && lockedPrerequisites.length > 0 ? (
         <div className="status-banner status-banner-blocked">
           <strong>Esta lección está bloqueada.</strong> Completa primero las siguientes lecciones:
           <ul>

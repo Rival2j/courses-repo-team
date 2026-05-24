@@ -5,6 +5,7 @@ import { ProgressBar } from "../components/ProgressBar";
 interface CatalogPageProps {
   courses: Course[];
   progress: ProgressState["completedLessons"];
+  enrolledCourses: string[];
 }
 
 function countCourseProgress(course: Course, progress: CatalogPageProps["progress"]) {
@@ -17,7 +18,17 @@ function countCourseProgress(course: Course, progress: CatalogPageProps["progres
   };
 }
 
-export default function CatalogPage({ courses, progress }: CatalogPageProps) {
+function isCourseLockedByPrerequisites(course: Course, courses: Course[], progress: CatalogPageProps["progress"]) {
+  return (course.prerequisiteCourseIds ?? []).some((prerequisiteId) => {
+    const prerequisite = courses.find((item) => item.id === prerequisiteId);
+    return (
+      !prerequisite ||
+      prerequisite.modules.flatMap((module) => module.lessons).some((lesson) => !progress[lesson.id])
+    );
+  });
+}
+
+export default function CatalogPage({ courses, progress, enrolledCourses }: CatalogPageProps) {
   return (
     <section aria-labelledby="catalog-heading" className="page-content">
       <div className="page-header">
@@ -28,6 +39,9 @@ export default function CatalogPage({ courses, progress }: CatalogPageProps) {
       <div className="course-grid">
         {courses.map((course) => {
           const stats = countCourseProgress(course, progress);
+          const isEnrolled = enrolledCourses.includes(course.id);
+          const locked = isCourseLockedByPrerequisites(course, courses, progress);
+
           return (
             <article key={course.id} className="course-card">
               <h3>{course.title}</h3>
@@ -41,6 +55,9 @@ export default function CatalogPage({ courses, progress }: CatalogPageProps) {
               </p>
               <p className="course-meta">
                 <strong>Dificultad:</strong> {course.difficulty}
+              </p>
+              <p className="course-meta course-status">
+                <strong>Estado:</strong> {isEnrolled ? "Inscrito" : locked ? "Requiere prerequisitos" : "Disponible"}
               </p>
               <Link className="button" to={`/cursos/${course.id}`}>
                 Ver curso

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { ReactNode } from "react";
 
 interface AppShellProps {
@@ -26,6 +27,10 @@ export function AppShell({
           <h1>LMS PWA TEAM-02</h1>
           <p className="subtitle">Aplicación con contrato de datos desacoplado, shell de estados y navegación por feature.</p>
         </div>
+        <nav className="app-nav" aria-label="Navegación principal">
+          <Link to="/">Catálogo</Link>
+          <Link to="/rutas">Rutas de aprendizaje</Link>
+        </nav>
       </header>
 
       {isOffline ? (

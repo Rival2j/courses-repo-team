@@ -1,4 +1,4 @@
-import type { Course } from "./types";
+import type { Course, LearningPath } from "./types";
 
 export const courses: Course[] = [
   {
@@ -75,6 +75,7 @@ export const courses: Course[] = [
       "Explora cómo las evaluaciones controladas y la restricción de IA se presentan en el frontend.",
     instructor: "Ing. Andrés Méndez",
     difficulty: "Avanzado",
+    prerequisiteCourseIds: ["curso-1"],
     modules: [
       {
         id: "modulo-3",
@@ -99,5 +100,15 @@ export const courses: Course[] = [
         ],
       },
     ],
+  },
+];
+
+export const learningPaths: LearningPath[] = [
+  {
+    id: "ruta-1",
+    title: "Ruta de aprendizaje inicial",
+    description:
+      "Avanza desde los fundamentos del LMS hacia el curso de evaluaciones seguras con prerequisitos claros.",
+    courseIds: ["curso-1", "curso-2"],
   },
 ];
