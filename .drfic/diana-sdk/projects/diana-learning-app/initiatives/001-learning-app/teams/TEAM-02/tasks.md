@@ -29,8 +29,8 @@ Este archivo deriva literalmente del backlog canonico global y contiene solo tar
 - [ ] T212 [P] [F2] [TEAM-02] Construir vistas de rutas de aprendizaje con estados de desbloqueo, progreso y siguiente curso permitido. TR: S-RF-003.
 
 ### F3
-- [ ] T311 [P] [F3] [TEAM-02] Implementar UI del runner de evaluacion con flujo controlado, temporizador opcional y restricciones de navegacion. TR: S-RF-002, S-RNF-004.
-- [ ] T312 [P] [F3] [TEAM-02] Implementar feedback post-evaluacion sin revelar respuestas correctas ni logica sensible. TR: C-5, S-RF-002.
+- [x] T311 [P] [F3] [TEAM-02] Implementar UI del runner de evaluacion con flujo controlado, temporizador opcional y restricciones de navegacion. TR: S-RF-002, S-RNF-004.
+- [x] T312 [P] [F3] [TEAM-02] Implementar feedback post-evaluacion sin revelar respuestas correctas ni logica sensible. TR: C-5, S-RF-002.
 
 ### F4
 - [ ] T411 [P] [F4] [TEAM-02] Implementar vistas de perfil, logros, badges, leaderboards y certificados verificables. TR: S-RF-003, S-RNF-004.

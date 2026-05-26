@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { EvaluationRunner } from "../components/EvaluationRunner";
 import { EvaluationFeedback } from "../components/EvaluationFeedback";
@@ -15,6 +15,23 @@ export function EvaluationPage() {
     await startAttempt();
     setHasStarted(true);
   };
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (hasStarted && !feedbackData) {
+        event.preventDefault();
+        event.returnValue = "";
+      }
+    };
+
+    if (hasStarted && !feedbackData) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasStarted, feedbackData]);
 
   if (isLoading) {
     return (

@@ -37,29 +37,15 @@ export function EvaluationFeedback() {
         </p>
       </div>
 
-      {/* Question Review (optional) */}
+      {/* High-level feedback only: no correct answers are revealed */}
       {feedbackData.questionsReview && feedbackData.questionsReview.length > 0 && (
-        <div className="mb-6">
+        <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
           <h3 className="text-xl font-semibold text-gray-900 mb-4">
-            Question Review
+            Review Guidance
           </h3>
-          <div className="space-y-4">
-            {feedbackData.questionsReview.map((review: any, index: number) => (
-              <div key={index} className="p-4 border rounded-lg">
-                <p className="font-semibold text-gray-900 mb-2">
-                  Question {index + 1}: {review.question}
-                </p>
-                <p className="text-gray-700 mb-2">
-                  Your answer: <span className="font-medium">{review.userAnswer}</span>
-                </p>
-                {review.isCorrect === false && (
-                  <p className="text-red-600">
-                    Correct answer: <span className="font-medium">{review.correctAnswer}</span>
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
+          <p className="text-gray-700">
+            Your answers were recorded successfully. Use the course materials and help resources to review concepts if needed.
+          </p>
         </div>
       )}
 

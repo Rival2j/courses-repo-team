@@ -97,6 +97,13 @@ export function EvaluationRunner({ evaluation, onSubmit }: EvaluationRunnerProps
         </div>
       )}
 
+      <div className="mb-6 p-4 rounded-lg bg-yellow-50 border border-yellow-200 text-yellow-800">
+        <p className="font-semibold">Navigation is restricted during active evaluation.</p>
+        <p className="text-sm">
+          Leaving or refreshing the page may submit your attempt automatically and end the session.
+        </p>
+      </div>
+
       {/* Progress Bar */}
       <div className="mb-6">
         <div className="flex justify-between text-sm text-gray-600 mb-2">

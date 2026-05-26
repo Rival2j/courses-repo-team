@@ -43,3 +43,48 @@ export interface LearningPath {
 export interface ProgressState {
   completedLessons: Record<string, boolean>;
 }
+
+export interface EvaluationOption {
+  id: string;
+  text: string;
+}
+
+export interface EvaluationQuestion {
+  id: string;
+  text: string;
+  options: EvaluationOption[];
+}
+
+export interface EvaluationPolicy {
+  maxAttempts: number;
+  passingScore?: number;
+  timeLimitSeconds?: number;
+  allowReview?: boolean;
+  shuffleQuestions?: boolean;
+}
+
+export interface Evaluation {
+  id: string;
+  title: string;
+  description?: string;
+  questions: EvaluationQuestion[];
+  policy: EvaluationPolicy;
+}
+
+export interface EvaluationAttempt {
+  id: string;
+  evaluationId: string;
+  status: "started" | "submitted";
+  startedAt: string;
+  submittedAt?: string;
+}
+
+export interface EvaluationFeedback {
+  score: number;
+  message: string;
+  questionsReview?: {
+    question: string;
+    userAnswer: string;
+    isCorrect?: boolean;
+  }[];
+}
