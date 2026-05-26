@@ -9,11 +9,4 @@ policy:
   optional_layers:
     - sdk-shared
 
-projects:
-  - id: diana-learning-app
-    alias: lms
-    enabled: true
-    knowledge_index: null
-    skills_manifest: null
-    agent_skill_matrix: null
-    sdd_engine_matrix: null
+projects: []
