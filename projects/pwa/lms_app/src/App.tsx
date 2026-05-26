@@ -6,6 +6,7 @@ import CatalogPage from "./pages/CatalogPage";
 import CoursePage from "./pages/CoursePage";
 import LessonPage from "./pages/LessonPage";
 import LearningPathPage from "./pages/LearningPathPage";
+import { EvaluationPage } from "./pages/EvaluationPage";
 import { AppShell } from "./components/AppShell";
 import { learningPaths } from "./data";
 
@@ -72,6 +73,10 @@ function App() {
         <Route
           path="/rutas"
           element={<LearningPathPage courses={courses} learningPaths={learningPaths} progress={completedLessons} />}
+        />
+        <Route
+          path="/evaluacion/:evaluationId"
+          element={<EvaluationPage />}
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
