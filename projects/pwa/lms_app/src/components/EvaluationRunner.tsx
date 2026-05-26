@@ -1,8 +1,8 @@
 import { useCallback, useState } from "react";
-import type { Evaluation } from "../../types";
-import { useEvaluationStore } from "../evaluation/evaluationStore";
-import { useEvaluationTimer } from "../evaluation/useEvaluationTimer";
-import { evaluationService } from "../evaluation/evaluationService";
+import type { Evaluation } from "../types";
+import { useEvaluationStore } from "../features/evaluation/evaluationStore";
+import { useEvaluationTimer } from "../features/evaluation/useEvaluationTimer";
+import { evaluationService } from "../features/evaluation/evaluationService";
 
 interface EvaluationRunnerProps {
   evaluation: Evaluation;
