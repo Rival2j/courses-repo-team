@@ -33,12 +33,12 @@ Este archivo deriva literalmente del backlog canonico global y contiene solo tar
 - [x] T312 [P] [F3] [TEAM-02] Implementar feedback post-evaluacion sin revelar respuestas correctas ni logica sensible. TR: C-5, S-RF-002.
 
 ### F4
-- [ ] T411 [P] [F4] [TEAM-02] Implementar vistas de perfil, logros, badges, leaderboards y certificados verificables. TR: S-RF-003, S-RNF-004.
-- [ ] T412 [P] [F4] [TEAM-02] Integrar feedback de XP, niveles, badges y trofeos sobre flujos del alumno. TR: S-RF-003.
+- [x] T411 [P] [F4] [TEAM-02] Implementar vistas de perfil, logros, badges, leaderboards y certificados verificables. TR: S-RF-003, S-RNF-004.
+- [x] T412 [P] [F4] [TEAM-02] Integrar feedback de XP, niveles, badges y trofeos sobre flujos del alumno. TR: S-RF-003.
 
 ### F5
-- [ ] T511 [P] [F5] [TEAM-02] Implementar interfaz de chat IA con estados de bloqueo, historial y mensajes de restriccion. TR: S-RF-004, S-RNF-004.
-- [ ] T512 [P] [F5] [TEAM-02] Implementar feed de notificaciones y bell badge conectados a eventos auditables. TR: S-RF-005, S-RNF-003.
+ - [x] T511 [P] [F5] [TEAM-02] Implementar interfaz de chat IA con estados de bloqueo, historial y mensajes de restriccion. TR: S-RF-004, S-RNF-004.
+ - [x] T512 [P] [F5] [TEAM-02] Implementar feed de notificaciones y bell badge conectados a eventos auditables. TR: S-RF-005, S-RNF-003.
 
 ### F6
 - [ ] T611 [P] [F6] [TEAM-02] Integrar `vite-plugin-pwa`/Workbox, prompt de instalacion y placeholders offline. TR: S-RF-005, S-RNF-004.
