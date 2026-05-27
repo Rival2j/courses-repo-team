@@ -1,1 +1,1 @@
-{"compilerOptions": {"target": "ESNext", "module": "CommonJS"}}
+{"compilerOptions": {"target": "ESNext", "module": "CommonJS", "esModuleInterop": true, "allowSyntheticDefaultImports": true}}
