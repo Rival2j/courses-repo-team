@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { Course, LearningPath, ProgressState } from "../types";
 import { ProgressBar } from "../components/ProgressBar";
+import { CourseGraph } from "../components/CourseGraph";
 
 interface LearningPathPageProps {
   courses: Course[];
@@ -76,6 +77,11 @@ export default function LearningPathPage({ courses, learningPaths, progress }: L
                 ) : (
                   "Ninguno por ahora. Completa los cursos desbloqueados para seguir avanzando."
                 )}
+              </div>
+
+              <div className="learning-path-graph">
+                <h4>Mapa de dependencias</h4>
+                <CourseGraph courses={courses} learningPathId={path.id} courseIds={path.courseIds} />
               </div>
 
               <ol className="module-list">

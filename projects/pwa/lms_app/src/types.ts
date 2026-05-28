@@ -30,6 +30,19 @@ export interface Course {
   instructor: string;
   difficulty: string;
   prerequisiteCourseIds?: string[];
+  image: string;
+  badge?: "BESTSELLER" | "NUEVO";
+  rating: number;
+  reviewCount: number;
+  price: number;
+  originalPrice?: number;
+  discountPercent?: number;
+  durationHours: number;
+  lessonsCount: number;
+  language: "Español" | "Inglés" | "Portugués";
+  category: "Desarrollo" | "Diseño" | "Marketing" | "Data Science" | "Seguridad";
+  level: "Principiante" | "Intermedio" | "Avanzado";
+  createdAt?: number;
   modules: Module[];
 }
 

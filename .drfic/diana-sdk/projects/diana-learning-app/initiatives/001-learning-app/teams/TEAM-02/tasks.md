@@ -36,6 +36,9 @@ Este archivo deriva literalmente del backlog canonico global y contiene solo tar
 - [ ] T411 [P] [F4] [TEAM-02] Implementar vistas de perfil, logros, badges, leaderboards y certificados verificables. TR: S-RF-003, S-RNF-004.
 - [ ] T412 [P] [F4] [TEAM-02] Integrar feedback de XP, niveles, badges y trofeos sobre flujos del alumno. TR: S-RF-003.
 
+	- AC-T411: UI muestra perfil con lista de logros y badges; leaderboard paginado; opción de descargar certificado con código verificable (hash/UUID).
+	- AC-T412: XP visible en perfil, niveles calculados y mostrados; badges/trofeos con animación ligera y evento de emisión auditado.
+
 ### F5
 - [ ] T511 [P] [F5] [TEAM-02] Implementar interfaz de chat IA con estados de bloqueo, historial y mensajes de restriccion. TR: S-RF-004, S-RNF-004.
 - [ ] T512 [P] [F5] [TEAM-02] Implementar feed de notificaciones y bell badge conectados a eventos auditables. TR: S-RF-005, S-RNF-003.

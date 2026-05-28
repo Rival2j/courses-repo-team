@@ -28,13 +28,11 @@ export const useEvaluationTimer = ({
     }
 
     const interval = setInterval(() => {
-      setTimeRemaining((prev) => {
-        const newTime = Math.max(0, prev - 1);
-        if (newTime === 0 && onTimeExpired) {
-          onTimeExpired();
-        }
-        return newTime;
-      });
+      const newTime = Math.max(0, timeRemaining - 1);
+      setTimeRemaining(newTime);
+      if (newTime === 0 && onTimeExpired) {
+        onTimeExpired();
+      }
     }, 1000);
 
     return () => clearInterval(interval);

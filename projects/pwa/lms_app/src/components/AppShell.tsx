@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { ReactNode } from "react";
+import { UserProfile } from "./UserProfile";
 
 interface AppShellProps {
   children: ReactNode;
@@ -23,14 +24,16 @@ export function AppShell({
   return (
     <div className="app-shell">
       <header className="app-header">
-        <div>
-          <h1>LMS PWA TEAM-02</h1>
-          <p className="subtitle">Aplicación con contrato de datos desacoplado, shell de estados y navegación por feature.</p>
+        <div className="app-header-brand">
+          <h1>LMS</h1>
         </div>
         <nav className="app-nav" aria-label="Navegación principal">
           <Link to="/">Catálogo</Link>
           <Link to="/rutas">Rutas de aprendizaje</Link>
         </nav>
+        <div className="app-header-profile">
+          <UserProfile userName="Estudiante Usuario" userEmail="usuario@lms.edu" />
+        </div>
       </header>
 
       {isOffline ? (

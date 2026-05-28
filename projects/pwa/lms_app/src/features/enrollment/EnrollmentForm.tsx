@@ -6,8 +6,8 @@ import * as z from "zod";
 const enrollmentSchema = z.object({
   studentName: z.string().min(2, "Ingresa tu nombre"),
   email: z.string().email("Ingresa un email válido"),
-  acceptTerms: z.literal(true, {
-    errorMap: () => ({ message: "Debes aceptar los términos para inscribirte" }),
+  acceptTerms: z.boolean().refine((value) => value === true, {
+    message: "Debes aceptar los términos para inscribirte",
   }),
 });
 
