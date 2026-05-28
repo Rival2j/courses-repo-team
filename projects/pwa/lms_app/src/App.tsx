@@ -7,6 +7,9 @@ import CoursePage from "./pages/CoursePage";
 import LessonPage from "./pages/LessonPage";
 import LearningPathPage from "./pages/LearningPathPage";
 import { EvaluationPage } from "./pages/EvaluationPage";
+import ProfilePage from "./pages/ProfilePage";
+import ChatPage from "./pages/ChatPage";
+import NotificationsPage from "./pages/NotificationsPage";
 import { AppShell } from "./components/AppShell";
 import { learningPaths } from "./data";
 
@@ -78,6 +81,9 @@ function App() {
           path="/evaluacion/:evaluationId"
           element={<EvaluationPage />}
         />
+        <Route path="/perfil" element={<ProfilePage />} />
+        <Route path="/chat" element={<ChatPage />} />
+        <Route path="/notificaciones" element={<NotificationsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppShell>

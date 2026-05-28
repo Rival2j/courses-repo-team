@@ -30,6 +30,9 @@ export function AppShell({
         <nav className="app-nav" aria-label="Navegación principal">
           <Link to="/">Catálogo</Link>
           <Link to="/rutas">Rutas de aprendizaje</Link>
+          <Link to="/perfil">Perfil</Link>
+          <Link to="/chat">Chat IA</Link>
+          <Link to="/notificaciones">Notificaciones</Link>
         </nav>
         <div className="app-header-profile">
           <UserProfile userName="Estudiante Usuario" userEmail="usuario@lms.edu" />
