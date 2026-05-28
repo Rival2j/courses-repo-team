@@ -1,4 +1,5 @@
-import type { CourseListResponse, CourseDetail } from "../../contracts/courseContracts";
+import { courses as fallbackCourseData } from "../../data";
+import type { CourseListResponse } from "../../contracts/courseContracts";
 import { supabase } from "../../lib/supabaseClient";
 
 /**
@@ -6,6 +7,11 @@ import { supabase } from "../../lib/supabaseClient";
  * Falls back to mock data if Supabase is unavailable.
  */
 export async function fetchCourses(): Promise<CourseListResponse> {
+  if (!supabase) {
+    console.warn("Supabase client is not initialized, using fallback mock data.");
+    return fallbackCourses();
+  }
+
   try {
     const { data: coursesData, error } = await supabase
       .from("cursos.courses")
@@ -39,6 +45,11 @@ export async function fetchCourses(): Promise<CourseListResponse> {
  * Fetch a course by ID with all its modules and lessons.
  */
 export async function fetchCourseById(courseId: string): Promise<CourseListResponse[0] | undefined> {
+  if (!supabase) {
+    console.warn("Supabase client is not initialized, using fallback course by ID.");
+    return fallbackCourses().find((course) => course.id === courseId);
+  }
+
   try {
     const { data: courseData, error: courseError } = await supabase
       .from("cursos.courses")
@@ -48,16 +59,14 @@ export async function fetchCourseById(courseId: string): Promise<CourseListRespo
 
     if (courseError || !courseData) {
       console.error("Error fetching course:", courseError);
-      // Return fallback course if the requested ID matches mock data, otherwise undefined
-      const fallback = fallbackCourses().find(course => course.id === courseId);
+      const fallback = fallbackCourses().find((course) => course.id === courseId);
       return fallback;
     }
 
     return reconstructCourseWithModules(courseId, courseData);
   } catch (err) {
     console.error("Error fetching course by ID:", err);
-    // Return fallback course if the requested ID matches mock data, otherwise undefined
-    const fallback = fallbackCourses().find(course => course.id === courseId);
+    const fallback = fallbackCourses().find((course) => course.id === courseId);
     return fallback;
   }
 }
@@ -66,8 +75,26 @@ export async function fetchCourseById(courseId: string): Promise<CourseListRespo
  * Reconstruct full course hierarchy from modules and lessons.
  */
 async function reconstructCourseWithModules(courseId: string, courseData: any) {
+  if (!supabase) {
+    return {
+      ...courseData,
+      prerequisiteCourseIds: courseData.prerequisite_course_ids || [],
+      modules: courseData.modules || [],
+    };
+  }
+
   try {
-    const { data: modulesData, error: modulesError } = await supabase
+    const client = supabase;
+
+    if (!client) {
+      return {
+        ...courseData,
+        prerequisiteCourseIds: courseData.prerequisite_course_ids || [],
+        modules: courseData.modules || [],
+      };
+    }
+
+    const { data: modulesData, error: modulesError } = await client
       .from("cursos.modules")
       .select("id, title, description")
       .eq("course_id", courseId);
@@ -79,7 +106,7 @@ async function reconstructCourseWithModules(courseId: string, courseData: any) {
 
     const modules = await Promise.all(
       (modulesData || []).map(async (module: any) => {
-        const { data: lessonsData, error: lessonsError } = await supabase
+        const { data: lessonsData, error: lessonsError } = await client
           .from("cursos.lessons")
           .select("id, title, description, blocked_by")
           .eq("module_id", module.id);
@@ -91,7 +118,7 @@ async function reconstructCourseWithModules(courseId: string, courseData: any) {
 
         const lessons = await Promise.all(
           (lessonsData || []).map(async (lesson: any) => {
-            const { data: resourcesData, error: resourcesError } = await supabase
+            const { data: resourcesData, error: resourcesError } = await client
               .from("cursos.external_resources")
               .select("id, title, type, source, description")
               .eq("lesson_id", lesson.id);
@@ -129,36 +156,5 @@ async function reconstructCourseWithModules(courseId: string, courseData: any) {
  */
 function fallbackCourses(): CourseListResponse {
   console.warn("Using fallback mock data");
-  return [
-    {
-      id: "curso-1",
-      title: "Fundamentos de Gestión del Aprendizaje",
-      summary: "Explora el catálogo y las lecciones clave para trazar tu ruta educativa con progreso visible.",
-      instructor: "Dra. Camila Rojas",
-      difficulty: "Intermedio",
-      modules: [
-        {
-          id: "modulo-1",
-          title: "Introducción al LMS",
-          description: "Aprende la estructura de cursos, lecciones y la navegación principal.",
-          lessons: [
-            {
-              id: "leccion-1",
-              title: "Cómo usar el catálogo",
-              description: "Descubre cómo encontrar cursos, filtrarlos y comprender el progreso.",
-              resources: [
-                {
-                  id: "res-1",
-                  title: "Video introductorio",
-                  type: "video",
-                  source: "https://www.w3schools.com/html/mov_bbb.mp4",
-                  description: "Video de bienvenida que muestra el catálogo y sus estados de avance.",
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ];
+  return fallbackCourseData;
 }
