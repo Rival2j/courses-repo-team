@@ -8,7 +8,7 @@ import { supabase } from "../../lib/supabaseClient";
 export async function fetchCourses(): Promise<CourseListResponse> {
   try {
     const { data: coursesData, error } = await supabase
-      .from("courses")
+      .from("cursos.courses")
       .select("id, title, summary, instructor, difficulty, prerequisite_course_ids");
 
     if (error) {
@@ -41,20 +41,24 @@ export async function fetchCourses(): Promise<CourseListResponse> {
 export async function fetchCourseById(courseId: string): Promise<CourseListResponse[0] | undefined> {
   try {
     const { data: courseData, error: courseError } = await supabase
-      .from("courses")
+      .from("cursos.courses")
       .select("id, title, summary, instructor, difficulty, prerequisite_course_ids")
       .eq("id", courseId)
       .single();
 
     if (courseError || !courseData) {
       console.error("Error fetching course:", courseError);
-      return undefined;
+      // Return fallback course if the requested ID matches mock data, otherwise undefined
+      const fallback = fallbackCourses().find(course => course.id === courseId);
+      return fallback;
     }
 
     return reconstructCourseWithModules(courseId, courseData);
   } catch (err) {
     console.error("Error fetching course by ID:", err);
-    return undefined;
+    // Return fallback course if the requested ID matches mock data, otherwise undefined
+    const fallback = fallbackCourses().find(course => course.id === courseId);
+    return fallback;
   }
 }
 
@@ -64,7 +68,7 @@ export async function fetchCourseById(courseId: string): Promise<CourseListRespo
 async function reconstructCourseWithModules(courseId: string, courseData: any) {
   try {
     const { data: modulesData, error: modulesError } = await supabase
-      .from("modules")
+      .from("cursos.modules")
       .select("id, title, description")
       .eq("course_id", courseId);
 
@@ -76,7 +80,7 @@ async function reconstructCourseWithModules(courseId: string, courseData: any) {
     const modules = await Promise.all(
       (modulesData || []).map(async (module: any) => {
         const { data: lessonsData, error: lessonsError } = await supabase
-          .from("lessons")
+          .from("cursos.lessons")
           .select("id, title, description, blocked_by")
           .eq("module_id", module.id);
 
@@ -88,7 +92,7 @@ async function reconstructCourseWithModules(courseId: string, courseData: any) {
         const lessons = await Promise.all(
           (lessonsData || []).map(async (lesson: any) => {
             const { data: resourcesData, error: resourcesError } = await supabase
-              .from("resources")
+              .from("cursos.external_resources")
               .select("id, title, type, source, description")
               .eq("lesson_id", lesson.id);
 
