@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { ReactNode } from "react";
 import { UserProfile } from "./UserProfile";
+import NotificationBell from "./NotificationBell";
 
 interface AppShellProps {
   children: ReactNode;
@@ -32,10 +33,10 @@ export function AppShell({
           <Link to="/rutas">Rutas de aprendizaje</Link>
           <Link to="/perfil">Perfil</Link>
           <Link to="/chat">Chat IA</Link>
-          <Link to="/notificaciones">Notificaciones</Link>
         </nav>
         <div className="app-header-profile">
-          <UserProfile userName="Estudiante Usuario" userEmail="usuario@lms.edu" />
+          <NotificationBell />
+          <UserProfile />
         </div>
       </header>
 

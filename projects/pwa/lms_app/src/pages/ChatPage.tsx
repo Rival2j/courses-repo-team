@@ -1,22 +1,37 @@
-import React from "react";
+import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import ChatBox from "../components/ChatBox";
 import { useChatStore } from "../features/chat/chatStore";
+import { useAuthStore } from "../features/auth/authStore";
 
 export default function ChatPage() {
   const setBlocked = useChatStore((s) => s.setBlocked);
+  const user = useAuthStore((s) => s.user);
 
-  // Example: block chat in sensitive flows (the UI can toggle)
-  React.useEffect(() => {
-    // By default allow chat; components can set blocked=true when entering restricted flows
-    setBlocked(false);
-    return () => setBlocked(false);
-  }, [setBlocked]);
+  useEffect(() => {
+    setBlocked(!Boolean(user));
+    return () => {
+      setBlocked(false);
+    };
+  }, [setBlocked, user]);
 
   return (
-    <div>
-      <h1>Asistente de Chat (IA)</h1>
-      <p>El asistente IA está disponible en modo demostración local. No se envían mensajes a servicios externos.</p>
-      <ChatBox />
-    </div>
+    <section className="page-content">
+      <div className="page-header">
+        <h2>Asistente de Chat (IA)</h2>
+        <p>El asistente IA ofrece respuestas de guía de curso y contexto personalizado mientras estés autenticado.</p>
+      </div>
+
+      {!user ? (
+        <div className="state-panel state-empty">
+          <p>Inicia sesión para activar el chat y recibir soporte adaptado a tu progreso.</p>
+          <Link to="/login" className="button">
+            Iniciar sesión
+          </Link>
+        </div>
+      ) : (
+        <ChatBox />
+      )}
+    </section>
   );
 }

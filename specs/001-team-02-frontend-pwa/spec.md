@@ -41,10 +41,43 @@ Como alumno, quiero inscribirme y avanzar en rutas de aprendizaje respetando pre
 
 1. **Given** un curso con prerequisitos no cumplidos, **When** el alumno intenta inscribirse, **Then** la interfaz bloquea la accion y muestra el motivo del bloqueo.
 2. **Given** una ruta con progreso parcial, **When** el alumno consulta su ruta, **Then** visualiza el siguiente curso permitido y el estado de desbloqueo de los demas.
+3. **Given** una cadena de cursos dependientes, **When** el alumno revisa el mapa de dependencias, **Then** la UI renderiza flechas dirigidas entre cursos y el backend mapea esas relaciones como prerequisitos en la base de datos.
 
 ---
 
-### User Story 3 - Evaluaciones y restriccion de IA durante intentos activos (Priority: P1)
+### User Story 3 - Autenticación y registro con flujo seguro y estado persistente (Priority: P1)
+
+Como usuario, quiero registrarme, iniciar sesión y mantener mi sesión activa para que el sistema me identifique, permita inscribirme y sincronice mi progreso con la base de datos.
+
+**Why this priority**: Sin auth no se puede garantizar el estado de logueado tipo Udemy ni persistir inscripciones y progreso en backend.
+
+**Independent Test**: Se valida cuando un usuario puede crear cuenta, iniciar sesión, recibir un token/session válida, y el sistema retorna perfil desde DB.
+
+**Acceptance Scenarios**:
+
+1. **Given** un usuario no autenticado, **When** abre el menú de usuario en el header, **Then** ve opciones claras de `Login` y `Sign Up` junto al avatar genérico.
+2. **Given** un usuario autenticado, **When** abre el menú, **Then** ve su perfil con `Logout`, `Mi Perfil` y un avatar persistente cargado desde la DB.
+3. **Given** credenciales válidas, **When** el usuario inicia sesión, **Then** el sistema guarda la sesion y el frontend muestra estado logueado en toda la app.
+
+---
+
+### User Story 4 - Profile, Chat AI y notificaciones con experiencia dedicada (Priority: P1)
+
+Como alumno, quiero un perfil mejorado, un chat AI intuitivo y notificaciones funcionales para sentir que la aplicacion me acompaña y me comunica actualizaciones importantes.
+
+**Why this priority**: Mejora la retención y la percepción de calidad del producto, permitiendo interaccion proactiva y seguimiento de eventos.
+
+**Independent Test**: Se valida cuando el usuario ve notificaciones con estado de leidos/no leidos, usa chat AI con conversacion fluida e interactua con un perfil enriquecido.
+
+**Acceptance Scenarios**:
+
+1. **Given** notificaciones nuevas, **When** el usuario abre la barra de notificaciones, **Then** las items no leidos aparecen con marcador rojo y las leidas no muestran alerta.
+2. **Given** el usuario abre el chat AI, **When** interactua con el asistente, **Then** la interfaz ofrece sugerencias contextuales, historial de mensajes y un estilo conversacional intuitivo.
+3. **Given** el usuario accede a su perfil, **When** revisa su estado, **Then** observa informacion de cursos inscritos, progreso, badges y opciones de actualizacion de cuenta.
+
+---
+
+### User Story 5 - Evaluaciones y restriccion de IA durante intentos activos (Priority: P1)
 
 Como alumno, quiero presentar evaluaciones en una interfaz controlada y recibir feedback posterior seguro para confiar en que la evaluacion mantiene integridad academica.
 
@@ -129,6 +162,9 @@ Como administrador o moderador, quiero gestionar configuraciones operativas y mo
 - **FR-010**: El feature DEBE cumplir objetivos de accesibilidad y experiencia en vistas criticas, incluyendo responsive y usabilidad verificable; las vistas y flujos críticos DEBEN alinearse con WCAG 2.1 AA (alineado a RNF-004 y T811).
 - **FR-011**: El feature DEBE mantener evidencia de trazabilidad funcional por fase F0-F8 para su validacion operativa multi-team (alineado a REQ-T2/REQ-T3 y perfil de integracion).
 - **FR-012**: El feature DEBE respetar restricciones de seguridad del cliente: sin secretos, sin decision academica en cliente y sin bypass desde UI de controles de restriccion (alineado a REQ-T4 y restricciones canonicas).
+- **FR-013**: El frontend DEBE incluir un flujo de autenticación completo con `Login`, `Sign Up`, `Logout`, perfil de usuario y persistencia de sesión respaldada en DB, usando componentes React para formularios y estado de sesión (alineado a RF-003 y REQ-T1).
+- **FR-014**: El grafo de dependencias DEBE mostrarse como una cadena dirigida de cursos con flechas y layout topológico, y su modelo de datos DEBE poder mapearse a la DB como relaciones de prerequisito en lugar de nodos superpuestos.
+- **FR-015**: El frontend DEBE incluir notificaciones funcionales con indicador rojo para elementos no leidos, ausencia de alerta cuando no hay notificaciones, y un chat AI más intuitivo con sugerencias contextuales e historial conversacional visible.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -141,6 +177,11 @@ Como administrador o moderador, quiero gestionar configuraciones operativas y mo
 - **Notificacion**: Evento visible al usuario asociado a hitos o cambios relevantes del aprendizaje.
 - **Sesion Offline Basica**: Estado de continuidad de interfaz cuando no hay conectividad, con recuperacion controlada al reconectar.
 - **Vista Administrativa/Moderacion**: Superficie de gestion disponible solo para roles autorizados.
+- **Sesion de Usuario / Auth**: Estado de login persistente que habilita vistas de `Login`, `Sign Up`, `Logout`, perfil y datos de usuario desde DB.
+- **Avatar / User Menu**: Estado de menu de usuario que muestra login/signup cuando no autenticado y opciones de perfil/logout cuando autenticado.
+- **Grafo de Prerequisitos**: Cadena dirigida en UI con relaciones `course_prerequisite_ids` o tabla de junction en DB para modelar flechas entre cursos.
+- **Chat AI Contextual**: Estado conversacional con historial, sugerencias, productos relacionados y respuestas intuitivas del asistente.
+- **Notificacion No Leida**: Indicador rojo con estado de leido/no leido y visibilidad condicional para que no aparezca cuando no haya alerts.
 
 ## Success Criteria *(mandatory)*
 

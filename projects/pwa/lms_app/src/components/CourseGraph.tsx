@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import ReactFlow, { Node, Edge, Controls, Background, useNodesState, useEdgesState, Position } from "reactflow";
+import ReactFlow, { Node, Edge, Controls, Background, useNodesState, useEdgesState, Position, MarkerType } from "reactflow";
 import dagre from "dagre";
 import "reactflow/dist/style.css";
 import type { Course } from "../types";
@@ -13,10 +13,10 @@ interface CourseGraphProps {
 function calculateLayout(nodes: Node[], edges: Edge[]) {
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
-  dagreGraph.setGraph({ rankdir: "TB" });
+  dagreGraph.setGraph({ rankdir: "LR", nodesep: 170, ranksep: 140, marginx: 24, marginy: 24 });
 
   nodes.forEach((node) => {
-    dagreGraph.setNode(node.id, { width: 220, height: 80 });
+    dagreGraph.setNode(node.id, { width: 240, height: 90 });
   });
 
   edges.forEach((edge) => {
@@ -29,11 +29,11 @@ function calculateLayout(nodes: Node[], edges: Edge[]) {
     const nodeWithPosition = dagreGraph.node(node.id);
     return {
       ...node,
-      targetPosition: Position.Top,
-      sourcePosition: Position.Bottom,
+      targetPosition: Position.Left,
+      sourcePosition: Position.Right,
       position: {
-        x: nodeWithPosition.x - 110,
-        y: nodeWithPosition.y - 40,
+        x: nodeWithPosition.x - 120,
+        y: nodeWithPosition.y - 45,
       },
     };
   });
@@ -70,7 +70,15 @@ export function CourseGraph({ courses, learningPathId, courseIds }: CourseGraphP
               id: `${prereqId}->${courseId}`,
               source: prereqId,
               target: courseId,
-              animated: true,
+              type: "smoothstep",
+              animated: false,
+              markerEnd: {
+                type: MarkerType.ArrowClosed,
+              },
+              style: {
+                stroke: "#2563eb",
+                strokeWidth: 2,
+              },
             });
           }
         });

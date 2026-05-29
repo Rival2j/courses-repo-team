@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { User, LogOut, Settings } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { User, LogOut, Settings, LogIn, UserPlus } from "lucide-react";
+import { useAuthStore } from "../features/auth/authStore";
 
-interface UserProfileProps {
-  userName?: string;
-  userEmail?: string;
-  onLogout?: () => void;
-}
-
-export function UserProfile({ userName = "Usuario", userEmail = "usuario@ejemplo.com", onLogout }: UserProfileProps) {
+export function UserProfile() {
+  const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
+  const logout = useAuthStore((state) => state.logout);
   const [showMenu, setShowMenu] = useState(false);
+
+  const userName = user?.name ?? "Visitante";
+  const userEmail = user?.email ?? "invitado@lms.local";
 
   const initials = userName
     .split(" ")
@@ -16,6 +18,12 @@ export function UserProfile({ userName = "Usuario", userEmail = "usuario@ejemplo
     .join("")
     .toUpperCase()
     .slice(0, 2);
+
+  const handleLogout = () => {
+    logout();
+    setShowMenu(false);
+    navigate("/");
+  };
 
   return (
     <div className="user-profile">
@@ -34,32 +42,57 @@ export function UserProfile({ userName = "Usuario", userEmail = "usuario@ejemplo
           <div className="user-menu-header">
             <div className="user-avatar user-avatar-menu">{initials}</div>
             <div>
-              <p className="user-menu-name">{userName}</p>
-              <p className="user-menu-email">{userEmail}</p>
+              <p className="user-menu-name">{user ? userName : "Bienvenido"}</p>
+              <p className="user-menu-email">{user ? userEmail : "Inicia sesión para personalizar la experiencia."}</p>
             </div>
           </div>
 
           <div className="user-menu-divider" />
 
-          <button type="button" className="user-menu-item" role="menuitem" onClick={() => setShowMenu(false)}>
-            <Settings size={16} />
-            Configuración
-          </button>
-
-          <div className="user-menu-divider" />
-
-          <button
-            type="button"
-            className="user-menu-item user-menu-item-danger"
-            role="menuitem"
-            onClick={() => {
-              onLogout?.();
-              setShowMenu(false);
-            }}
-          >
-            <LogOut size={16} />
-            Cerrar sesión
-          </button>
+          {user ? (
+            <>
+              <Link to="/perfil" className="user-menu-item" role="menuitem" onClick={() => setShowMenu(false)}>
+                <Settings size={16} />
+                Mi perfil
+              </Link>
+              <button
+                type="button"
+                className="user-menu-item user-menu-item-danger"
+                role="menuitem"
+                onClick={handleLogout}
+              >
+                <LogOut size={16} />
+                Cerrar sesión
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="user-menu-item"
+                role="menuitem"
+                onClick={() => {
+                  setShowMenu(false);
+                  navigate("/login");
+                }}
+              >
+                <LogIn size={16} />
+                Iniciar sesión
+              </button>
+              <button
+                type="button"
+                className="user-menu-item"
+                role="menuitem"
+                onClick={() => {
+                  setShowMenu(false);
+                  navigate("/registrarse");
+                }}
+              >
+                <UserPlus size={16} />
+                Crear cuenta
+              </button>
+            </>
+          )}
         </div>
       )}
     </div>

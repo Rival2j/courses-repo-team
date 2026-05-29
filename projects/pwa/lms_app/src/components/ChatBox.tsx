@@ -28,20 +28,26 @@ export default function ChatBox() {
   return (
     <div className="chat-box">
       {blocked ? (
-        <div role="status" className="chat-blocked">El chat está bloqueado para este flujo.</div>
+        <div role="status" className="status-banner-blocked">El chat está bloqueado hasta que inicies sesión.</div>
       ) : null}
 
       <div className="chat-history" aria-live="polite">
-        {messages.map((m) => (
-          <div key={m.id} className={`chat-line chat-${m.role}`}>
-            <strong>{m.role === "user" ? "Tú" : m.role === "assistant" ? "Asistente" : "Sistema"}:</strong>{" "}
-            <span>{m.text}</span>
+        {messages.length === 0 ? (
+          <div className="chat-system chat-line">
+            Empieza una conversación escribiendo tu pregunta y presionando Enviar.
           </div>
-        ))}
+        ) : (
+          messages.map((m) => (
+            <div key={m.id} className={`chat-line ${m.role === "user" ? "chat-user" : m.role === "assistant" ? "chat-assistant" : "chat-system"}`}>
+              <strong>{m.role === "user" ? "Tú" : m.role === "assistant" ? "Asistente" : "Sistema"}:</strong>{" "}
+              <span>{m.text}</span>
+            </div>
+          ))
+        )}
       </div>
 
       <div className="chat-input">
-        <textarea value={text} onChange={(e) => setText(e.target.value)} disabled={blocked} rows={3} />
+        <textarea value={text} onChange={(e) => setText(e.target.value)} disabled={blocked} rows={3} placeholder="Escribe tu pregunta aquí..." />
         <button onClick={send} disabled={blocked}>Enviar</button>
       </div>
     </div>

@@ -33,7 +33,7 @@ body,
 .app-header {
   margin-bottom: 1.5rem;
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -48,19 +48,129 @@ body,
 
 .app-header-profile {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.notification-bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #eff6ff;
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+
+.notification-bell:hover {
+  background: #dbeafe;
+}
+
+.notification-bell .badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: #dc2626;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.4rem;
+}
+
+.chat-box {
+  display: grid;
+  gap: 1rem;
+}
+
+.chat-history {
+  background: #f8fafc;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  min-height: 280px;
+  padding: 1rem;
+  overflow-y: auto;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.chat-line {
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  max-width: 90%;
+  line-height: 1.5;
+}
+
+.chat-user {
+  background: #e0f2fe;
+  color: #0f172a;
+  justify-self: end;
+}
+
+.chat-assistant {
+  background: #f8fafc;
+  color: #111827;
+  justify-self: start;
+}
+
+.chat-system {
+  background: #fef3c7;
+  color: #92400e;
+  justify-self: center;
+}
+
+.chat-input {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.chat-input textarea {
+  width: 100%;
+  min-height: 100px;
+  border-radius: 14px;
+  border: 1px solid #cbd5e1;
+  padding: 0.95rem 1rem;
+  resize: vertical;
+  font: inherit;
+}
+
+.chat-input button {
+  width: fit-content;
+  padding: 0.85rem 1.15rem;
 }
 
 .app-nav {
   display: flex;
-  gap: 1rem;
-  margin: 0;
   flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
 }
 
 .app-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
   font-weight: 600;
   color: #2563eb;
   text-decoration: none;
+  background: #eff6ff;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.app-nav a:hover {
+  background: #dbeafe;
+  transform: translateY(-1px);
 }
 
 .app-nav a:hover {
@@ -266,6 +376,8 @@ body,
   border: 1px solid #e2e8f0;
   padding: 1rem;
   background: #ffffff;
+  display: grid;
+  gap: 1.25rem;
 }
 
 .course-summary {
@@ -1040,11 +1152,26 @@ body,
 }
 
 .learning-path-graph {
-  margin: 1.5rem 0;
+  margin: 2rem 0;
   border: 1px solid #e2e8f0;
   border-radius: 16px;
   overflow: hidden;
   background: #f8fafc;
+  padding-bottom: 1rem;
+}
+
+.learning-path-graph h4 {
+  margin: 1rem 1rem 0;
+  color: #0f172a;
+}
+
+.page-header + .path-summary,
+.page-header + .learning-path-graph {
+  margin-top: 1rem;
+}
+
+.page-header {
+  margin-bottom: 1rem;
 }
 
 .learning-path-graph h4 {

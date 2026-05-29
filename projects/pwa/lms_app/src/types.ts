@@ -57,6 +57,11 @@ export interface ProgressState {
   completedLessons: Record<string, boolean>;
 }
 
+export interface User {
+  name: string;
+  email: string;
+}
+
 export interface EvaluationOption {
   id: string;
   text: string;
