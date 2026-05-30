@@ -1,0 +1,90 @@
+# ─── AI Chat Edge Function Tests ────────────────────────────────────────────
+# Requiere: extensión REST Client en VS Code
+# Proyecto: xqtfovmmndsloqnyqhfv
+# Función: ai-chat (Supabase.ai.Session → llama3.1)
+
+@supabase_url = https://xqtfovmmndsloqnyqhfv.supabase.co
+@anon_key = TU_ANON_KEY_AQUI
+
+# ─── 1. Login para obtener JWT ────────────────────────────────────────────────
+# Copia el access_token de la respuesta y úsalo en las siguientes peticiones
+
+POST {{supabase_url}}/auth/v1/token?grant_type=password
+apikey: {{anon_key}}
+Content-Type: application/json
+
+{
+  "email": "tu@email.com",
+  "password": "tupassword"
+}
+
+###
+
+# ─── 2. Chat básico (sin contexto de curso) ───────────────────────────────────
+@jwt = PEGA_TU_JWT_AQUI
+
+POST {{supabase_url}}/functions/v1/ai-chat
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "message": "¿Qué es una función recursiva?"
+}
+
+###
+
+# ─── 3. Chat con contexto de curso y lección ─────────────────────────────────
+
+POST {{supabase_url}}/functions/v1/ai-chat
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "message": "No entiendo este tema, ¿me puedes ayudar?",
+  "course_id": "UUID_DEL_CURSO",
+  "lesson_id": "UUID_DE_LA_LECCION",
+  "session_id": "sesion-prueba-001"
+}
+
+###
+
+# ─── 4. Chat con historial de conversación ────────────────────────────────────
+
+POST {{supabase_url}}/functions/v1/ai-chat
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "message": "¿Y cómo sería el caso base?",
+  "course_id": "UUID_DEL_CURSO",
+  "history": [
+    { "role": "user", "content": "¿Qué es una función recursiva?" },
+    { "role": "assistant", "content": "¿Qué crees que significa que una función se llame a sí misma?" }
+  ]
+}
+
+###
+
+# ─── 5. Verificar kill-switch (con evaluación activa) ────────────────────────
+# Este debe retornar 403 si el usuario tiene una evaluación en curso
+
+POST {{supabase_url}}/functions/v1/ai-chat
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "message": "Ayúdame con esta pregunta de examen"
+}
+
+###
+
+# ─── 6. Sin token — debe retornar 401 ────────────────────────────────────────
+
+POST {{supabase_url}}/functions/v1/ai-chat
+Content-Type: application/json
+
+{
+  "message": "Prueba sin auth"
+}
+
+###

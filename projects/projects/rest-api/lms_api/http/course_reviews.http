@@ -1,0 +1,175 @@
+# T828/T829 — Course Reviews & Rating Aggregation
+# Manual test file — ordered by request flow
+#
+# Requirements:
+#   @baseUrl  = http://localhost:3000
+#   @token    = <JWT del alumno con curso completado>
+#   @adminToken = <JWT del admin>
+#   @courseId = <UUID de un curso existente>
+#   @userId   = <UUID del alumno autenticado>
+#
+# Pre-conditions for review tests:
+#   1. The user must have an enrollment with status='completed' for the given course.
+#   2. Only one review per user/course (UNIQUE constraint).
+
+### 1. GET /courses — verify rating_average and rating_count are present
+GET {{baseUrl}}/courses
+Authorization: Bearer {{token}}
+
+###
+
+### 2. GET /courses/:courseId — verify rating fields on single course
+GET {{baseUrl}}/courses/{{courseId}}
+Authorization: Bearer {{token}}
+
+###
+
+### 3. POST /courses/:courseId/reviews — happy path (5 stars, with comment)
+# Expected: 201 Created
+POST {{baseUrl}}/courses/{{courseId}}/reviews
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating_stars": 5,
+  "comment": "Excelente curso, muy completo y bien explicado."
+}
+
+###
+
+### 4. POST /courses/:courseId/reviews — minimum valid (1 star, no comment)
+# Expected: 201 Created
+POST {{baseUrl}}/courses/{{courseId}}/reviews
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating_stars": 1
+}
+
+###
+
+### 5. GET /courses/:courseId/reviews — list reviews after creation
+# Expected: 200 OK with reviews array
+GET {{baseUrl}}/courses/{{courseId}}/reviews
+Authorization: Bearer {{token}}
+
+###
+
+### 6. GET /courses — verify rating_average and rating_count updated after review
+GET {{baseUrl}}/courses
+Authorization: Bearer {{token}}
+
+###
+
+### 7. POST /courses/:courseId/reviews — duplicate (idempotency check)
+# Expected: 409 Conflict
+POST {{baseUrl}}/courses/{{courseId}}/reviews
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating_stars": 3,
+  "comment": "Intento de segunda reseña — debe fallar"
+}
+
+###
+
+### 8. POST /courses/:courseId/reviews — rating_stars too low (0)
+# Expected: 400 Bad Request (Zod validation)
+POST {{baseUrl}}/courses/{{courseId}}/reviews
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating_stars": 0
+}
+
+###
+
+### 9. POST /courses/:courseId/reviews — rating_stars too high (6)
+# Expected: 400 Bad Request (Zod validation)
+POST {{baseUrl}}/courses/{{courseId}}/reviews
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating_stars": 6
+}
+
+###
+
+### 10. POST /courses/:courseId/reviews — missing rating_stars
+# Expected: 400 Bad Request (Zod validation)
+POST {{baseUrl}}/courses/{{courseId}}/reviews
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "comment": "Sin calificación"
+}
+
+###
+
+### 11. POST /courses/:courseId/reviews — user with active (not completed) enrollment
+# Expected: 403 Forbidden
+# Note: change @courseId to a course where the user has status='active' enrollment
+POST {{baseUrl}}/courses/{{courseId}}/reviews
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating_stars": 4,
+  "comment": "No debería funcionar — inscripción no completada"
+}
+
+###
+
+### 12. POST /courses/:courseId/reviews — user with no enrollment
+# Expected: 403 Forbidden
+# Note: use a courseId where the user has no enrollment at all
+POST {{baseUrl}}/courses/{{courseId}}/reviews
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating_stars": 4
+}
+
+###
+
+### 13. POST /courses/:courseId/reviews — unauthenticated request
+# Expected: 401 Unauthorized
+POST {{baseUrl}}/courses/{{courseId}}/reviews
+Content-Type: application/json
+
+{
+  "rating_stars": 5
+}
+
+###
+
+### 14. POST /courses/:courseId/reviews — invalid courseId (not UUID)
+# Expected: 400 Bad Request (Zod param validation)
+POST {{baseUrl}}/courses/not-a-uuid/reviews
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating_stars": 5
+}
+
+###
+
+### 15. POST /courses/:courseId/reviews — comment exceeds 1000 chars
+# Expected: 400 Bad Request (Zod validation)
+POST {{baseUrl}}/courses/{{courseId}}/reviews
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "rating_stars": 3,
+  "comment": "{{$randomLoremParagraph}}{{$randomLoremParagraph}}{{$randomLoremParagraph}}{{$randomLoremParagraph}}{{$randomLoremParagraph}}{{$randomLoremParagraph}}{{$randomLoremParagraph}}{{$randomLoremParagraph}}{{$randomLoremParagraph}}{{$randomLoremParagraph}}"
+}
+
+###

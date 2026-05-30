@@ -1,0 +1,359 @@
+@supabaseUrl = {{$dotenv SUPABASE_URL}}
+@supabaseAnonKey = {{$dotenv VITE_SUPABASE_ANON_KEY}}
+@apiUrl = http://127.0.0.1:3000
+
+# =====================================================================
+# Seed users (creados por T127 — seed_enrollments.mjs)
+# Para obtener tokens: ejecuta los bloques de signin de la sección 0
+# y pega los access_token en las variables correspondientes.
+# =====================================================================
+
+# Alumno happy path (inscripciones activa + cancelada + completada)
+@happyAlumnoToken = PASTE_TOKEN_HERE
+@happyAlumnoId    = eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee
+
+# Alumno bloqueado (sin ninguna inscripción)
+@blockedAlumnoToken = PASTE_TOKEN_HERE
+@blockedAlumnoId    = 33333333-3333-3333-3333-333333333333
+
+# Instructor seed (creó seed-instructor-course)
+@instructorToken = PASTE_TOKEN_HERE
+@instructorId    = ffffffff-ffff-ffff-ffff-ffffffffffff
+
+# Admin seed
+@adminToken = PASTE_TOKEN_HERE
+@adminId    = dddddddd-dddd-dddd-dddd-dddddddddddd
+
+# Cursos seed
+@courseHappy      = aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa
+@coursePrereq     = bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb
+@courseGated      = cccccccc-cccc-cccc-cccc-cccccccccccc
+@courseInstructor = f0f0f0f0-f0f0-f0f0-f0f0-f0f0f0f0f0f0
+
+# Inscripciones seed (alumno happy)
+@enrollActiveHappy      = 084a1a40-e83c-472a-b6c0-6f5d81647be3
+@enrollActiveInstructor = 98a8bcee-4d27-4c8d-a47f-c078c52ab914
+@enrollCancelled        = 4d7fff7c-311a-446a-9e28-9148216773a7
+@enrollCompleted        = 6d00ac04-850c-442a-8812-a8c71f2c7f0e
+
+###############################################################################
+## 0) Obtener tokens — signin de cada usuario seed
+###############################################################################
+
+### Signin alumno happy
+POST {{supabaseUrl}}/auth/v1/token?grant_type=password
+apikey: {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "seed.alumno.happy@example.com",
+  "password": "SeedAlumno-123!"
+}
+
+### Signin alumno bloqueado
+POST {{supabaseUrl}}/auth/v1/token?grant_type=password
+apikey: {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "seed.student.blocked@example.com",
+  "password": "SeedBlocked-123!"
+}
+
+### Signin instructor seed
+POST {{supabaseUrl}}/auth/v1/token?grant_type=password
+apikey: {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "seed.instructor@example.com",
+  "password": "SeedInstructor-123!"
+}
+
+### Signin admin seed
+POST {{supabaseUrl}}/auth/v1/token?grant_type=password
+apikey: {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "seed.admin@example.com",
+  "password": "SeedAdmin-123!"
+}
+
+###############################################################################
+## 1) POST /enrollments — Alta de inscripción
+###############################################################################
+
+### E01 — Alumno happy: inscribirse a coursePrereq (aún no inscrito) → 201 active [HAPPY PATH]
+POST {{apiUrl}}/enrollments
+Authorization: Bearer {{happyAlumnoToken}}
+Content-Type: application/json
+
+{
+  "course_id": "{{coursePrereq}}"
+}
+
+### E02 — Alumno happy: reinscribirse al mismo curso (idempotencia) → 201 con misma inscripción [IDEMPOTENTE]
+POST {{apiUrl}}/enrollments
+Authorization: Bearer {{happyAlumnoToken}}
+Content-Type: application/json
+
+{
+  "course_id": "{{courseHappy}}"
+}
+
+### E03 — Alumno bloqueado: inscribirse a courseHappy → 201 active [HAPPY PATH]
+POST {{apiUrl}}/enrollments
+Authorization: Bearer {{blockedAlumnoToken}}
+Content-Type: application/json
+
+{
+  "course_id": "{{courseHappy}}"
+}
+
+### E04 — Alumno: curso inexistente → 404 not_found [ERROR]
+POST {{apiUrl}}/enrollments
+Authorization: Bearer {{happyAlumnoToken}}
+Content-Type: application/json
+
+{
+  "course_id": "00000000-0000-0000-0000-000000000000"
+}
+
+### E05 — Sin token → 401 unauthorized [ERROR]
+POST {{apiUrl}}/enrollments
+Content-Type: application/json
+
+{
+  "course_id": "{{courseHappy}}"
+}
+
+### E06 — Token inválido → 401 unauthorized [ERROR]
+POST {{apiUrl}}/enrollments
+Authorization: Bearer not-a-real-jwt
+Content-Type: application/json
+
+{
+  "course_id": "{{courseHappy}}"
+}
+
+### E07 — Body vacío → 400 validation error [ERROR]
+POST {{apiUrl}}/enrollments
+Authorization: Bearer {{happyAlumnoToken}}
+Content-Type: application/json
+
+{}
+
+### E08 — course_id con formato inválido (no UUID) → 400 validation error [ERROR]
+POST {{apiUrl}}/enrollments
+Authorization: Bearer {{happyAlumnoToken}}
+Content-Type: application/json
+
+{
+  "course_id": "no-es-un-uuid"
+}
+
+### E09 — Instructor: inscribirse a courseHappy (propio usuario) → 201 [HAPPY PATH]
+POST {{apiUrl}}/enrollments
+Authorization: Bearer {{instructorToken}}
+Content-Type: application/json
+
+{
+  "course_id": "{{courseHappy}}"
+}
+
+### E10 — Admin: inscribirse a courseHappy (propio usuario) → 201 [HAPPY PATH]
+POST {{apiUrl}}/enrollments
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "course_id": "{{courseHappy}}"
+}
+
+###############################################################################
+## 2) GET /enrollments — Listar inscripciones del usuario autenticado
+###############################################################################
+
+### E11 — Alumno happy: ver todas sus inscripciones → 200 [HAPPY PATH]
+GET {{apiUrl}}/enrollments
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E12 — Alumno happy: filtrar solo activas → 200 solo active [FILTRO]
+GET {{apiUrl}}/enrollments?status=active
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E13 — Alumno happy: filtrar canceladas → 200 solo cancelled [FILTRO]
+GET {{apiUrl}}/enrollments?status=cancelled
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E14 — Alumno happy: filtrar completadas → 200 solo completed [FILTRO]
+GET {{apiUrl}}/enrollments?status=completed
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E15 — Alumno bloqueado: listar inscripciones (vacío) → 200 data:[] [HAPPY PATH]
+GET {{apiUrl}}/enrollments
+Authorization: Bearer {{blockedAlumnoToken}}
+
+### E16 — Admin: ver inscripciones de otro usuario vía ?user_id= → 200 [ADMIN]
+GET {{apiUrl}}/enrollments?user_id={{happyAlumnoId}}
+Authorization: Bearer {{adminToken}}
+
+### E17 — Alumno: intentar ver inscripciones de otro con ?user_id= (ignorado) → 200 solo las propias [SEGURIDAD]
+GET {{apiUrl}}/enrollments?user_id={{blockedAlumnoId}}
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E18 — Sin token → 401 [ERROR]
+GET {{apiUrl}}/enrollments
+
+###############################################################################
+## 3) GET /enrollments/:enrollmentId — Detalle de inscripción
+###############################################################################
+
+### E19 — Alumno happy: ver su inscripción activa → 200 [HAPPY PATH]
+GET {{apiUrl}}/enrollments/{{enrollActiveHappy}}
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E20 — Alumno happy: ver su inscripción cancelada → 200 [HAPPY PATH]
+GET {{apiUrl}}/enrollments/{{enrollCancelled}}
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E21 — Alumno happy: ver su inscripción completada → 200 [HAPPY PATH]
+GET {{apiUrl}}/enrollments/{{enrollCompleted}}
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E22 — Alumno bloqueado: ver inscripción del alumno happy → 403 forbidden [SEGURIDAD]
+GET {{apiUrl}}/enrollments/{{enrollActiveHappy}}
+Authorization: Bearer {{blockedAlumnoToken}}
+
+### E23 — Admin: ver inscripción de otro usuario → 200 [ADMIN]
+GET {{apiUrl}}/enrollments/{{enrollActiveHappy}}
+Authorization: Bearer {{adminToken}}
+
+### E24 — Instructor: ver inscripción ajena → 403 [SEGURIDAD]
+GET {{apiUrl}}/enrollments/{{enrollActiveHappy}}
+Authorization: Bearer {{instructorToken}}
+
+### E25 — enrollmentId inexistente → 404 [ERROR]
+GET {{apiUrl}}/enrollments/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{adminToken}}
+
+### E26 — enrollmentId con formato inválido → 400 [ERROR]
+GET {{apiUrl}}/enrollments/no-es-uuid
+Authorization: Bearer {{happyAlumnoToken}}
+
+###############################################################################
+## 4) GET /courses/:courseId/enrollments — Inscripciones por curso
+###############################################################################
+
+### E27 — Admin: ver todas las inscripciones de courseHappy → 200 [ADMIN]
+GET {{apiUrl}}/courses/{{courseHappy}}/enrollments
+Authorization: Bearer {{adminToken}}
+
+### E28 — Admin: filtrar activas en courseHappy → 200 [ADMIN + FILTRO]
+GET {{apiUrl}}/courses/{{courseHappy}}/enrollments?status=active
+Authorization: Bearer {{adminToken}}
+
+### E29 — Instructor: ver inscripciones de SU curso (courseInstructor) → 200 [INSTRUCTOR PROPIO]
+GET {{apiUrl}}/courses/{{courseInstructor}}/enrollments
+Authorization: Bearer {{instructorToken}}
+
+### E30 — Instructor: intentar ver courseHappy (no es suyo) → 403 [SEGURIDAD]
+GET {{apiUrl}}/courses/{{courseHappy}}/enrollments
+Authorization: Bearer {{instructorToken}}
+
+### E31 — Alumno: acceso denegado → 403 forbidden [SEGURIDAD]
+GET {{apiUrl}}/courses/{{courseHappy}}/enrollments
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E32 — Sin token → 401 [ERROR]
+GET {{apiUrl}}/courses/{{courseHappy}}/enrollments
+
+### E33 — courseId inexistente (instructor) → 404 [ERROR]
+GET {{apiUrl}}/courses/00000000-0000-0000-0000-000000000000/enrollments
+Authorization: Bearer {{instructorToken}}
+
+###############################################################################
+## 5) PATCH /enrollments/:enrollmentId/cancel — Cancelar inscripción
+###############################################################################
+
+### E34 — Alumno happy: cancelar su inscripción activa → 200 cancelled [HAPPY PATH]
+PATCH {{apiUrl}}/enrollments/{{enrollActiveInstructor}}/cancel
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E35 — Alumno happy: cancelar ya cancelada (idempotente) → 200 cancelled [IDEMPOTENTE]
+PATCH {{apiUrl}}/enrollments/{{enrollCancelled}}/cancel
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E36 — Alumno happy: cancelar completada → 409 conflict [ERROR]
+PATCH {{apiUrl}}/enrollments/{{enrollCompleted}}/cancel
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E37 — Admin: cancelar inscripción de otro usuario → 200 cancelled [ADMIN]
+PATCH {{apiUrl}}/enrollments/{{enrollActiveHappy}}/cancel
+Authorization: Bearer {{adminToken}}
+
+### E38 — Alumno bloqueado: cancelar inscripción del alumno happy → 403 [SEGURIDAD]
+PATCH {{apiUrl}}/enrollments/{{enrollActiveHappy}}/cancel
+Authorization: Bearer {{blockedAlumnoToken}}
+
+### E39 — Instructor: cancelar inscripción ajena → 403 [SEGURIDAD]
+PATCH {{apiUrl}}/enrollments/{{enrollActiveHappy}}/cancel
+Authorization: Bearer {{instructorToken}}
+
+### E40 — enrollmentId inexistente → 404 [ERROR]
+PATCH {{apiUrl}}/enrollments/00000000-0000-0000-0000-000000000000/cancel
+Authorization: Bearer {{adminToken}}
+
+### E41 — Sin token → 401 [ERROR]
+PATCH {{apiUrl}}/enrollments/{{enrollActiveHappy}}/cancel
+
+###############################################################################
+## 6) PATCH /enrollments/:enrollmentId/reactivate — Reactivar inscripción
+###############################################################################
+
+### E42 — Alumno happy: reactivar su propia inscripción cancelada → 200 active [HAPPY PATH]
+PATCH {{apiUrl}}/enrollments/{{enrollCancelled}}/reactivate
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E43 — Admin: reactivar inscripción cancelada de otro usuario → 200 active [ADMIN]
+PATCH {{apiUrl}}/enrollments/{{enrollCancelled}}/reactivate
+Authorization: Bearer {{adminToken}}
+
+### E44 — Alumno happy: reactivar inscripción ya activa (idempotente) → 200 active [IDEMPOTENTE]
+PATCH {{apiUrl}}/enrollments/{{enrollActiveHappy}}/reactivate
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E45 — Alumno happy: reactivar inscripción completada → 409 conflict [ERROR]
+PATCH {{apiUrl}}/enrollments/{{enrollCompleted}}/reactivate
+Authorization: Bearer {{happyAlumnoToken}}
+
+### E46 — Alumno bloqueado: reactivar inscripción ajena → 403 [SEGURIDAD]
+PATCH {{apiUrl}}/enrollments/{{enrollCancelled}}/reactivate
+Authorization: Bearer {{blockedAlumnoToken}}
+
+### E47 — Instructor: reactivar inscripción ajena → 403 [SEGURIDAD]
+PATCH {{apiUrl}}/enrollments/{{enrollCancelled}}/reactivate
+Authorization: Bearer {{instructorToken}}
+
+### E48 — enrollmentId inexistente → 404 [ERROR]
+PATCH {{apiUrl}}/enrollments/00000000-0000-0000-0000-000000000000/reactivate
+Authorization: Bearer {{adminToken}}
+
+### E49 — Sin token → 401 [ERROR]
+PATCH {{apiUrl}}/enrollments/{{enrollCancelled}}/reactivate
+
+###############################################################################
+## Notas
+###############################################################################
+# Antes de ejecutar:
+# 1. Levantar el API: cd projects/rest-api/lms_api && npm run dev
+# 2. Ejecutar: node http/seed_enrollments.mjs  (crea auth.users seed)
+# 3. Realizar signin (sección 0) y pegar tokens en las variables de arriba.
+# 4. Ejecutar los bloques en orden o por escenario.
+#
+# IDs fijos del seed (T127):
+#   enrollActiveHappy      084a1a40-e83c-472a-b6c0-6f5d81647be3 (active, courseHappy)
+#   enrollActiveInstructor 98a8bcee-4d27-4c8d-a47f-c078c52ab914 (active, courseInstructor)
+#   enrollCancelled        4d7fff7c-311a-446a-9e28-9148216773a7 (cancelled, coursePrereq)
+#   enrollCompleted        6d00ac04-850c-442a-8812-a8c71f2c7f0e (completed, courseGated)

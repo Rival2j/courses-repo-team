@@ -1,0 +1,584 @@
+@supabaseUrl = {{$dotenv SUPABASE_URL}}
+@supabaseAnonKey = {{$dotenv VITE_SUPABASE_ANON_KEY}}
+@apiUrl = http://127.0.0.1:3000
+
+# Manual placeholders. Replace with real values if your REST client cannot persist variables.
+@studentToken =eyJhbGciOiJFUzI1NiIsImtpZCI6IjA1NjFmZjI2LTcxMmYtNDUxNS1hZDBmLTAxNjFiOTRkMTZjOSIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3hxdGZvdm1tbmRzbG9xbnlxaGZ2LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJiMTU2NTkwYi1hNTNjLTRmZjItOTFiYy1kZDg3MDMwMGY4NWMiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzc5OTIxNTI1LCJpYXQiOjE3Nzk5MTc5MjUsImVtYWlsIjoiYWRtaW5wcnVlYmFAZ21haWwuY29tIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJkaXNwbGF5X25hbWUiOiJBbHVtbm8gUkVTVCBDbGllbnQiLCJlbWFpbCI6ImFkbWlucHJ1ZWJhQGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaG9uZV92ZXJpZmllZCI6ZmFsc2UsInN1YiI6ImIxNTY1OTBiLWE1M2MtNGZmMi05MWJjLWRkODcwMzAwZjg1YyJ9LCJyb2xlIjoiYXV0aGVudGljYXRlZCIsImFhbCI6ImFhbDEiLCJhbXIiOlt7Im1ldGhvZCI6InBhc3N3b3JkIiwidGltZXN0YW1wIjoxNzc5OTE3OTI1fV0sInNlc3Npb25faWQiOiJlNmJlNzUzMy1hZjNkLTRiN2QtOTY2Ny0xMzlkZDliZDM4NmEiLCJpc19hbm9ueW1vdXMiOmZhbHNlfQ.hQtb0G-i3IapPjK985-3iHvjufbvCE_Sz35o2JClNxHgdDz7GATY1z2z5_T85gwxpy1gADM3dVse4yO_Hz2FIQ 
+@instructorToken = 
+@moderatorToken = 
+@adminToken = 
+@superAdminToken = 
+
+@studentId =b156590b-a53c-4ff2-91bc-dd870300f85c 
+@instructorId = 
+@moderatorId = 
+@adminId = 
+@superAdminId = 
+@newInstructorEmail = instructor1+rest@example.test
+@newInstructorPassword = Instructor-123!
+@newModeratorEmail = juan.perez@example.com
+@newModeratorPassword = Moderator-123!
+@sampleCourseId = 
+@sampleModuleId = 
+@sampleLessonId = 
+@sampleEnrollmentId = 
+@sampleResourceId = 
+@sampleEvaluationId = 
+@sampleAttemptId = 
+@sampleTemplateSlug = cert-basic
+@sampleUserId = fc2a6d5e-ddea-4549-8556-250d400731b8
+@sampleEmail = auth-sync-check2@example.test
+
+###################################################################################################
+## Uso rapido
+###################################################################################################
+# 1. Ejecuta signup/signin de Supabase Auth para cada rol.
+# 2. Si instructor/moderator no existen, usa el bloque "1b" para crearlos y provisionarlos.
+# 3. Pega cada `access_token` en su variable correspondiente: studentToken, instructorToken,
+#    moderatorToken, adminToken, superAdminToken.
+# 4. Reemplaza UUIDs como sampleCourseId, sampleModuleId, sampleLessonId y sampleUserId cuando
+#    quieras probar endpoints reales.
+
+###################################################################################################
+## 1) Supabase Auth: signup / login
+###################################################################################################
+
+### Student signup: creates auth user and syncs cursos.profiles
+POST {{supabaseUrl}}/auth/v1/signup
+apikey: {{supabaseAnonKey}}
+Authorization: Bearer {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "adminprueba@gmail.com",
+  "password": "admin123",
+  "data": {
+    "display_name": "Alumno REST Client"
+  }
+}
+
+### Student sign in
+POST {{supabaseUrl}}/auth/v1/token?grant_type=password
+apikey: {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "adminprueba@gmail.com",
+  "password": "admin123"
+}
+
+### Instructor sign in (replace with your real instructor account if different)
+POST {{supabaseUrl}}/auth/v1/token?grant_type=password
+apikey: {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "instructor1+rest@example.test",
+  "password": "Instructor-123!"
+}
+
+### Moderator sign in (replace with your real moderator account if different)
+POST {{supabaseUrl}}/auth/v1/token?grant_type=password
+apikey: {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "juan.perez@example.com",
+  "password": "admin123"
+}
+
+### Admin sign in (replace with your real admin account if different)
+POST {{supabaseUrl}}/auth/v1/token?grant_type=password
+apikey: {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "admin@example.test",
+  "password": "Admin-123!"
+}
+
+### Super admin sign in (replace with your real super admin account if different)
+POST {{supabaseUrl}}/auth/v1/token?grant_type=password
+apikey: {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "superadmin@example.test",
+  "password": "SuperAdmin-123!"
+}
+
+###################################################################################################
+## 1b) Admin flow to create missing instructor / moderator users
+###################################################################################################
+
+### If the instructor auth user does not exist, create it first
+POST {{supabaseUrl}}/auth/v1/signup
+apikey: {{supabaseAnonKey}}
+Authorization: Bearer {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "{{newInstructorEmail}}",
+  "password": "{{newInstructorPassword}}",
+  "data": {
+    "display_name": "Instructor REST"
+  }
+}
+
+### If the moderator auth user does not exist, create it first
+POST {{supabaseUrl}}/auth/v1/signup
+apikey: {{supabaseAnonKey}}
+Authorization: Bearer {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "{{newModeratorEmail}}",
+  "password": "{{newModeratorPassword}}",
+  "data": {
+    "display_name": "Moderador REST"
+  }
+}
+
+### Admin: provision instructor profile for an existing auth user
+POST {{apiUrl}}/users/{{instructorId}}/provision
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "display_name": "Instructor REST",
+  "email": "{{newInstructorEmail}}",
+  "role": "instructor"
+}
+
+### Admin: provision moderator profile for an existing auth user
+POST {{apiUrl}}/users/{{moderatorId}}/provision
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "display_name": "Moderador REST",
+  "email": "{{newModeratorEmail}}",
+  "role": "moderador"
+}
+
+### Login instructor after provisioning
+POST {{supabaseUrl}}/auth/v1/token?grant_type=password
+apikey: {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "{{newInstructorEmail}}",
+  "password": "{{newInstructorPassword}}"
+}
+
+### Login moderator after provisioning
+POST {{supabaseUrl}}/auth/v1/token?grant_type=password
+apikey: {{supabaseAnonKey}}
+Content-Type: application/json
+
+{
+  "email": "{{newModeratorEmail}}",
+  "password": "{{newModeratorPassword}}"
+}
+
+###################################################################################################
+## 2) Student happy path + errors
+###################################################################################################
+
+### Student: me (happy path)
+GET {{apiUrl}}/users/me
+Authorization: Bearer {{studentToken}}
+
+### Student: missing token -> 401
+GET {{apiUrl}}/users/me
+
+### Student: malformed token -> 401
+GET {{apiUrl}}/users/me
+Authorization: Bearer not-a-real-jwt
+
+### Student: cannot list users -> 403
+GET {{apiUrl}}/users
+Authorization: Bearer {{studentToken}}
+
+### Student: cannot provision users -> 403
+POST {{apiUrl}}/users/{{sampleUserId}}/provision
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{
+  "display_name": "No permitido",
+  "email": "student-cannot-provision@example.test",
+  "role": "instructor"
+}
+
+### Student: catalog list courses
+GET {{apiUrl}}/courses
+Authorization: Bearer {{studentToken}}
+
+### Student: get course by id (replace with a real course id)
+GET {{apiUrl}}/courses/{{sampleCourseId}}
+Authorization: Bearer {{studentToken}}
+
+### Student: modules for a course (replace with a real course id)
+GET {{apiUrl}}/courses/{{sampleCourseId}}/modules
+Authorization: Bearer {{studentToken}}
+
+### Student: lessons for a module (replace with a real module id)
+GET {{apiUrl}}/modules/{{sampleModuleId}}/lessons
+Authorization: Bearer {{studentToken}}
+
+### Student: access blocked course detail with invalid UUID -> 400 validation
+GET {{apiUrl}}/courses/not-a-uuid
+Authorization: Bearer {{studentToken}}
+
+### Student: view my profile while profile is missing -> 404 (use a token with no profile row)
+GET {{apiUrl}}/users/me
+Authorization: Bearer {{studentToken}}
+
+###################################################################################################
+## 3) Instructor / Moderator happy path + errors
+###################################################################################################
+
+### Instructor: create course
+POST {{apiUrl}}/courses
+Authorization: Bearer {{instructorToken}}
+Content-Type: application/json
+
+{
+  "slug": "intro-rest-instructor",
+  "title": "Introducción al REST",
+  "description": "Curso creado por instructor"
+}
+
+### Instructor: list courses
+GET {{apiUrl}}/courses
+Authorization: Bearer {{instructorToken}}
+
+### Instructor: update course (replace with real course id)
+PATCH {{apiUrl}}/courses/{{sampleCourseId}}
+Authorization: Bearer {{instructorToken}}
+Content-Type: application/json
+
+{
+  "title": "Introducción al REST - actualizado"
+}
+
+### Instructor: create module in course (replace with real course id)
+POST {{apiUrl}}/courses/{{sampleCourseId}}/modules
+Authorization: Bearer {{instructorToken}}
+Content-Type: application/json
+
+{
+  "title": "Módulo 1",
+  "position": 1
+}
+
+### Instructor: update module (replace with real module id)
+PATCH {{apiUrl}}/modules/{{sampleModuleId}}
+Authorization: Bearer {{instructorToken}}
+Content-Type: application/json
+
+{
+  "title": "Módulo 1 actualizado"
+}
+
+### Instructor: delete module (replace with real module id)
+DELETE {{apiUrl}}/modules/{{sampleModuleId}}
+Authorization: Bearer {{instructorToken}}
+
+### Instructor: create lesson in module (replace with real module id)
+POST {{apiUrl}}/modules/{{sampleModuleId}}/lessons
+Authorization: Bearer {{instructorToken}}
+Content-Type: application/json
+
+{
+  "title": "Lección 1",
+  "content": { "text": "Contenido base" },
+  "position": 1
+}
+
+### Instructor: update lesson (replace with real lesson id)
+PATCH {{apiUrl}}/lessons/{{sampleLessonId}}
+Authorization: Bearer {{instructorToken}}
+Content-Type: application/json
+
+{
+  "title": "Lección 1 actualizada"
+}
+
+### Instructor: delete lesson (replace with real lesson id)
+DELETE {{apiUrl}}/lessons/{{sampleLessonId}}
+Authorization: Bearer {{instructorToken}}
+
+### Instructor: create evaluation (replace with real course/module/lesson ids if needed)
+POST {{apiUrl}}/evaluations
+Authorization: Bearer {{instructorToken}}
+Content-Type: application/json
+
+{
+  "title": "Quiz inicial",
+  "course_id": "{{sampleCourseId}}",
+  "passing_score": 70
+}
+
+### Instructor: create resource for a lesson
+POST {{apiUrl}}/resources
+Authorization: Bearer {{instructorToken}}
+Content-Type: application/json
+
+{
+  "lesson_id": "{{sampleLessonId}}",
+  "title": "Recurso demo",
+  "url": "https://example.com/resource",
+  "provider": "external"
+}
+
+### Moderator: should be able to read catalog and profile, but not perform admin provisioning
+GET {{apiUrl}}/users/me
+Authorization: Bearer {{moderatorToken}}
+
+### Moderator: list courses
+GET {{apiUrl}}/courses
+Authorization: Bearer {{moderatorToken}}
+
+### Moderator: forbidden to provision users -> 403
+POST {{apiUrl}}/users/{{sampleUserId}}/provision
+Authorization: Bearer {{moderatorToken}}
+Content-Type: application/json
+
+{
+  "display_name": "No permitido",
+  "email": "moderator-cannot-provision@example.test",
+  "role": "moderador"
+}
+
+###################################################################################################
+## 4) Admin happy path + errors
+###################################################################################################
+
+### Admin: list users
+GET {{apiUrl}}/users
+Authorization: Bearer {{adminToken}}
+
+### Admin: list user emails as JSON
+GET {{apiUrl}}/users/emails
+Authorization: Bearer {{adminToken}}
+
+### Admin: list user emails as CSV
+GET {{apiUrl}}/users/emails?format=csv
+Authorization: Bearer {{adminToken}}
+Accept: text/csv
+
+### Admin: get user by id (replace with real id)
+GET {{apiUrl}}/users/{{sampleUserId}}
+Authorization: Bearer {{adminToken}}
+
+### Admin: provision instructor
+POST {{apiUrl}}/users/{{sampleUserId}}/provision
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "display_name": "Instructor Provisionado",
+  "email": "prov-instructor@example.test",
+  "role": "instructor"
+}
+
+### Admin: provision moderator
+POST {{apiUrl}}/users/{{sampleUserId}}/provision
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "display_name": "Moderador Provisionado",
+  "email": "prov-moderator@example.test",
+  "role": "moderador"
+}
+
+### Admin: update user
+PATCH {{apiUrl}}/users/{{sampleUserId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "display_name": "Usuario Editado",
+  "email": "edited-user@example.test"
+}
+
+### Admin: duplicate email conflict -> 409
+PATCH {{apiUrl}}/users/{{sampleUserId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "email": "student1+rest@example.test"
+}
+
+### Admin: invalid UUID -> 400
+GET {{apiUrl}}/users/not-a-uuid
+Authorization: Bearer {{adminToken}}
+
+### Admin: cannot use malformed token -> 401
+GET {{apiUrl}}/users
+Authorization: Bearer invalid-token
+
+### Admin: create course
+POST {{apiUrl}}/courses
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "slug": "admin-course-1",
+  "title": "Curso admin",
+  "description": "Curso creado por admin"
+}
+
+### Admin: create learning path
+POST {{apiUrl}}/learning-paths
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "slug": "path-admin-1",
+  "title": "Ruta admin",
+  "description": "Ruta creada por admin",
+  "isActive": true
+}
+
+###################################################################################################
+## 5) Super admin happy path + errors
+###################################################################################################
+
+### Super admin: list users
+GET {{apiUrl}}/users
+Authorization: Bearer {{superAdminToken}}
+
+### Super admin: provision instructor
+POST {{apiUrl}}/users/{{sampleUserId}}/provision
+Authorization: Bearer {{superAdminToken}}
+Content-Type: application/json
+
+{
+  "display_name": "Super Admin Provision",
+  "email": "super-provision@example.test",
+  "role": "instructor"
+}
+
+### Super admin: update user
+PATCH {{apiUrl}}/users/{{sampleUserId}}
+Authorization: Bearer {{superAdminToken}}
+Content-Type: application/json
+
+{
+  "display_name": "Super Admin Updated",
+  "email": "super-updated@example.test"
+}
+
+### Super admin: export emails as CSV
+GET {{apiUrl}}/users/emails?format=csv
+Authorization: Bearer {{superAdminToken}}
+Accept: text/csv
+
+### Super admin: create course
+POST {{apiUrl}}/courses
+Authorization: Bearer {{superAdminToken}}
+Content-Type: application/json
+
+{
+  "slug": "super-course-1",
+  "title": "Curso super admin",
+  "description": "Creado por super admin"
+}
+
+### Super admin: forbidden endpoint fallback if token is missing -> 401
+GET {{apiUrl}}/users
+
+###################################################################################################
+## 6) Cross-role / invalid payload / conflict scenarios
+###################################################################################################
+
+### Student cannot create admin provisioning -> 403
+POST {{apiUrl}}/users/{{sampleUserId}}/provision
+Authorization: Bearer {{studentToken}}
+Content-Type: application/json
+
+{
+  "display_name": "Intento prohibido",
+  "email": "forbidden@example.test",
+  "role": "instructor"
+}
+
+### Admin provisioning with invalid role value -> validation error
+POST {{apiUrl}}/users/{{sampleUserId}}/provision
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "display_name": "Rol inválido",
+  "email": "bad-role@example.test",
+  "role": "alumno"
+}
+
+### Admin profile update with empty body -> validation error
+PATCH {{apiUrl}}/users/{{sampleUserId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+}
+
+### Instructor trying to list users -> 403
+GET {{apiUrl}}/users
+Authorization: Bearer {{instructorToken}}
+
+### Moderator trying to export CSV emails -> 403
+GET {{apiUrl}}/users/emails?format=csv
+Authorization: Bearer {{moderatorToken}}
+Accept: text/csv
+
+### Student trying to access administrative config -> 403
+GET {{apiUrl}}/administrative/global-config
+Authorization: Bearer {{studentToken}}
+
+### Malformed UUID for course detail -> validation error
+GET {{apiUrl}}/courses/not-a-uuid
+Authorization: Bearer {{adminToken}}
+
+### Learning path read (admin / instructor should work; replace path id)
+GET {{apiUrl}}/learning-paths/{{sampleUserId}}
+Authorization: Bearer {{adminToken}}
+
+### Add course to learning path (replace both ids)
+POST {{apiUrl}}/learning-paths/{{sampleUserId}}/courses
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "courseId": "{{sampleCourseId}}",
+  "position": 1,
+  "isRequired": true
+}
+
+### Remove course from learning path (replace ids)
+DELETE {{apiUrl}}/learning-paths/{{sampleUserId}}/courses/{{sampleCourseId}}
+Authorization: Bearer {{adminToken}}
+
+### Update learning path course (replace ids)
+PATCH {{apiUrl}}/learning-paths/{{sampleUserId}}/courses/{{sampleCourseId}}
+Authorization: Bearer {{adminToken}}
+Content-Type: application/json
+
+{
+  "position": 2,
+  "isRequired": false
+}
+
+###################################################################################################
+## 7) Notes for manual execution
+###################################################################################################
+# If your REST Client does not support response scripting, copy the `access_token` and `user.id`
+# from each login response and paste them into the placeholders above.
+# Keep one token per role in the variables `studentToken`, `instructorToken`, `moderatorToken`,
+# `adminToken`, and `superAdminToken`.
+# Replace IDs like `sampleCourseId`, `sampleModuleId`, `sampleLessonId`, `sampleUserId`, etc. with
+# real UUIDs from your environment when running the requests manually.
